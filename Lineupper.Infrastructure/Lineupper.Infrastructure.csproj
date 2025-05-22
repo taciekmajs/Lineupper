@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\Lineupper.Application\Lineupper.Application.csproj" />
+    <ProjectReference Include="..\Lineupper.Domain\Lineupper.Domain.csproj" />
+    <ProjectReference Include="..\Lineupper.SharedKernel\Lineupper.SharedKernel.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+</Project>
