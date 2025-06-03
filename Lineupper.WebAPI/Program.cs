@@ -1,4 +1,6 @@
-using Lineupper.Infrastructure; 
+ï»¿using Lineupper.Domain.Contracts;
+using Lineupper.Infrastructure;
+using Lineupper.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,8 +13,15 @@ builder.Services.AddDbContext<LineupperDbContext>(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Tu w przysz³oœci zarejestrujesz swoje serwisy, repozytoria itd.
-// builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddControllers();
+
+// Tu w przyszÅ‚oÅ›ci zarejestrujesz swoje serwisy, repozytoria itd.
+builder.Services.AddScoped<IUnitOfWork, LineupperUnitOfWork>();
+builder.Services.AddScoped<IFestivalRepository, FestivalRepository>();
+builder.Services.AddScoped<IBandRepository, BandRepository>();
+builder.Services.AddScoped<IVoteRepository, VoteRepository>();
+builder.Services.AddScoped<IScheduleItemRepository, ScheduleItemRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 var app = builder.Build();
 
@@ -22,7 +31,7 @@ using (var scope = app.Services.CreateScope())
     DataSeeder.SeedDatabase(dbContext); 
 }
 
-// Œrodowisko developerskie – Swagger
+// Åšrodowisko developerskie â€“ Swagger
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -31,7 +40,11 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// Middleware do obs³ugi np. b³êdów lub logowania mo¿esz dodaæ póŸniej
+app.MapControllers();
+
+// Middleware do obsÅ‚ugi np. bÅ‚Ä™dÃ³w lub logowania moÅ¼esz dodaÄ‡ pÃ³Åºniej
 // app.UseMiddleware<ErrorHandlingMiddleware>();
+
+
 
 app.Run();
