@@ -1,5 +1,5 @@
-﻿using Lineupper.Domain.Contracts;
-using Lineupper.Domain.Models;
+﻿using Lineupper.Application.Dto;
+using Lineupper.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Lineupper.WebAPI.Controllers
@@ -8,37 +8,33 @@ namespace Lineupper.WebAPI.Controllers
     [Route("api/[controller]")]
     public class FestivalController : ControllerBase
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IFestivalService _festivalService;
 
-        public FestivalController(IUnitOfWork unitOfWork)
+        public FestivalController(IFestivalService festivalService)
         {
-            _unitOfWork = unitOfWork;
+            _festivalService = festivalService;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var festivals = await _unitOfWork.Festivals.GetAllAsync();
+            var festivals = await _festivalService.GetAllAsync();
             return Ok(festivals);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
-            var festival = await _unitOfWork.Festivals.GetByIdAsync(id);
-            if (festival == null)
-                return NotFound();
-
+            var festival = await _festivalService.GetByIdAsync(id);
+            if (festival == null) return NotFound();
             return Ok(festival);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(Festival festival)
+        public async Task<IActionResult> Create(FestivalDto festivalDto)
         {
-            await _unitOfWork.Festivals.AddAsync(festival);
-            await _unitOfWork.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetById), new { id = festival.Id }, festival);
+            await _festivalService.CreateAsync(festivalDto);
+            return Ok();
         }
     }
 }

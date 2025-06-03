@@ -12,6 +12,7 @@ namespace Lineupper.Domain.Contracts
         Task<IEnumerable<T>> GetAllAsync();
         Task AddAsync(T entity);
         void Remove(T entity);
+        void Update(T entity);
         Task SaveChangesAsync();
     }
 }

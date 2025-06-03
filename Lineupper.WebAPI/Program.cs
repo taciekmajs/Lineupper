@@ -1,4 +1,5 @@
-﻿using Lineupper.Domain.Contracts;
+﻿using Lineupper.Application.Mappings;
+using Lineupper.Domain.Contracts;
 using Lineupper.Infrastructure;
 using Lineupper.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -22,6 +23,11 @@ builder.Services.AddScoped<IBandRepository, BandRepository>();
 builder.Services.AddScoped<IVoteRepository, VoteRepository>();
 builder.Services.AddScoped<IScheduleItemRepository, ScheduleItemRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IParticipantRepository, ParticipantRepository>();
+builder.Services.AddScoped<IOrganizerRepository, OrganizerRepository>();
+
+// Automapper
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 var app = builder.Build();
 

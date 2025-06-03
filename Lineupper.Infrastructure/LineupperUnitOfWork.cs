@@ -1,4 +1,5 @@
 ﻿using Lineupper.Domain.Contracts;
+using Lineupper.Domain.Models;
 using Lineupper.Infrastructure.Repositories;
 using System;
 using System.Collections.Generic;
@@ -21,6 +22,8 @@ namespace Lineupper.Infrastructure
             Votes = new VoteRepository(_context);
             ScheduleItems = new ScheduleItemRepository(_context);
             Users = new UserRepository(_context);
+            Participants = new ParticipantRepository(_context); 
+            Organizers = new OrganizerRepository(_context);     
         }
 
         public IFestivalRepository Festivals { get; }
@@ -28,6 +31,8 @@ namespace Lineupper.Infrastructure
         public IVoteRepository Votes { get; }
         public IScheduleItemRepository ScheduleItems { get; }
         public IUserRepository Users { get; }
+        public IParticipantRepository Participants { get; }
+        public IOrganizerRepository Organizers { get; }     
 
         public async Task<int> SaveChangesAsync() => await _context.SaveChangesAsync();
     }

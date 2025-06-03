@@ -6,41 +6,41 @@ namespace Lineupper.WebAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class VoteController : ControllerBase
+    public class OrganizerController : ControllerBase
     {
-        private readonly IVoteService _voteService;
+        private readonly IOrganizerService _organizerService;
 
-        public VoteController(IVoteService voteService)
+        public OrganizerController(IOrganizerService organizerService)
         {
-            _voteService = voteService;
+            _organizerService = organizerService;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var votes = await _voteService.GetAllAsync();
-            return Ok(votes);
+            var organizers = await _organizerService.GetAllAsync();
+            return Ok(organizers);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
-            var vote = await _voteService.GetByIdAsync(id);
-            if (vote == null) return NotFound();
-            return Ok(vote);
+            var organizer = await _organizerService.GetByIdAsync(id);
+            if (organizer == null) return NotFound();
+            return Ok(organizer);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(VoteDto voteDto)
+        public async Task<IActionResult> Create(OrganizerDto dto)
         {
-            var created = await _voteService.CreateAsync(voteDto);
+            var created = await _organizerService.CreateAsync(dto);
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(Guid id, VoteDto voteDto)
+        public async Task<IActionResult> Update(Guid id, OrganizerDto dto)
         {
-            var updated = await _voteService.UpdateAsync(id, voteDto);
+            var updated = await _organizerService.UpdateAsync(id, dto);
             if (updated == null) return NotFound();
             return Ok(updated);
         }
@@ -48,7 +48,7 @@ namespace Lineupper.WebAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var success = await _voteService.DeleteAsync(id);
+            var success = await _organizerService.DeleteAsync(id);
             if (!success) return NotFound();
             return NoContent();
         }

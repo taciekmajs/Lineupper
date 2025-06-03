@@ -6,41 +6,41 @@ namespace Lineupper.WebAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class VoteController : ControllerBase
+    public class ScheduleItemController : ControllerBase
     {
-        private readonly IVoteService _voteService;
+        private readonly IScheduleItemService _scheduleItemService;
 
-        public VoteController(IVoteService voteService)
+        public ScheduleItemController(IScheduleItemService scheduleItemService)
         {
-            _voteService = voteService;
+            _scheduleItemService = scheduleItemService;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var votes = await _voteService.GetAllAsync();
-            return Ok(votes);
+            var items = await _scheduleItemService.GetAllAsync();
+            return Ok(items);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
-            var vote = await _voteService.GetByIdAsync(id);
-            if (vote == null) return NotFound();
-            return Ok(vote);
+            var item = await _scheduleItemService.GetByIdAsync(id);
+            if (item == null) return NotFound();
+            return Ok(item);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(VoteDto voteDto)
+        public async Task<IActionResult> Create(ScheduleItemDto itemDto)
         {
-            var created = await _voteService.CreateAsync(voteDto);
+            var created = await _scheduleItemService.CreateAsync(itemDto);
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(Guid id, VoteDto voteDto)
+        public async Task<IActionResult> Update(Guid id, ScheduleItemDto itemDto)
         {
-            var updated = await _voteService.UpdateAsync(id, voteDto);
+            var updated = await _scheduleItemService.UpdateAsync(id, itemDto);
             if (updated == null) return NotFound();
             return Ok(updated);
         }
@@ -48,7 +48,7 @@ namespace Lineupper.WebAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var success = await _voteService.DeleteAsync(id);
+            var success = await _scheduleItemService.DeleteAsync(id);
             if (!success) return NotFound();
             return NoContent();
         }

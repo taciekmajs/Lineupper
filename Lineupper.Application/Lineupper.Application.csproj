@@ -5,10 +5,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Dto\" />
-    <Folder Include="Mappings\" />
     <Folder Include="Validotors\" />
-    <Folder Include="Services\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="13.0.1" />
   </ItemGroup>
 
   <PropertyGroup>

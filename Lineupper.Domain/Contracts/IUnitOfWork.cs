@@ -14,6 +14,9 @@ namespace Lineupper.Domain.Contracts
         IScheduleItemRepository ScheduleItems { get; }
         IUserRepository Users { get; }
 
+        IParticipantRepository Participants { get; } 
+        IOrganizerRepository Organizers { get; }     
+
         Task<int> SaveChangesAsync();
     }
 }
