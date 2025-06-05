@@ -1,0 +1,83 @@
+﻿@page "/festivals"
+@using System.Linq
+
+<h3>Lista festiwali</h3>
+
+<div class="row mb-3">
+    <div class="col-md-4">
+        <label>Nazwa festiwalu:</label>
+        <input type="text" class="form-control" @bind="searchName" placeholder="np. Rockowy Szał" />
+    </div>
+    <div class="col-md-4">
+        <label>Lokalizacja:</label>
+        <input type="text" class="form-control" @bind="searchLocation" placeholder="np. Kraków" />
+    </div>
+    <div class="col-md-4">
+        <label>Status:</label>
+        <select class="form-select" @bind="searchStatus">
+            <option value="">-- wszystkie --</option>
+            <option value="Przed głosowaniem">Przed głosowaniem</option>
+            <option value="Po głosowaniu">Po głosowaniu</option>
+        </select>
+    </div>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Nazwa</th>
+            <th>Data</th>
+            <th>Lokalizacja</th>
+            <th>Status</th>
+            <th>Akcja</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var fest in FilteredFestivals)
+        {
+            <tr>
+                <td>@fest.Name</td>
+                <td>@fest.Date.ToShortDateString()</td>
+                <td>@fest.Location</td>
+                <td>@fest.Status</td>
+                <td>
+                    <a href="/festivaldetails/@fest.Id" class="btn btn-sm btn-primary">Szczegóły</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (!FilteredFestivals.Any())
+{
+    <p>Brak festiwali spełniających kryteria wyszukiwania.</p>
+}
+
+@code {
+    private string searchName = "";
+    private string searchLocation = "";
+    private string searchStatus = "";
+
+    private List<Festival> allFestivals = new()
+    {
+        new Festival { Id = 1, Name = "Rockowy Szał", Date = DateTime.Today.AddDays(30), Location = "Kraków", Status = "Przed głosowaniem" },
+        new Festival { Id = 2, Name = "Elektro Fest", Date = DateTime.Today.AddDays(60), Location = "Warszawa", Status = "Po głosowaniu" },
+        new Festival { Id = 3, Name = "Jazz Nights", Date = DateTime.Today.AddDays(15), Location = "Poznań", Status = "Przed głosowaniem" },
+    };
+
+    private IEnumerable<Festival> FilteredFestivals =>
+        allFestivals.Where(f =>
+            (string.IsNullOrWhiteSpace(searchName) || f.Name.Contains(searchName, StringComparison.OrdinalIgnoreCase)) &&
+            (string.IsNullOrWhiteSpace(searchLocation) || f.Location.Contains(searchLocation, StringComparison.OrdinalIgnoreCase)) &&
+            (string.IsNullOrWhiteSpace(searchStatus) || f.Status == searchStatus)
+        );
+
+    public class Festival
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public DateTime Date { get; set; }
+        public string Location { get; set; }
+        public string Status { get; set; }
+    }
+}

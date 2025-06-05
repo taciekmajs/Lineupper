@@ -1,0 +1,71 @@
+﻿@page "/register"
+@using System.ComponentModel.DataAnnotations
+
+<h3>Rejestracja</h3>
+
+<EditForm Model="@registerModel" OnValidSubmit="@HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-3">
+        <label>Email:</label>
+        <input type="email" class="form-control" @bind="registerModel.Email" />
+        <ValidationMessage For="@(() => registerModel.Email)" />
+    </div>
+
+    <div class="mb-3">
+        <label>Hasło:</label>
+        <input type="password" class="form-control" @bind="registerModel.Password" />
+        <ValidationMessage For="@(() => registerModel.Password)" />
+    </div>
+
+    <div class="mb-3">
+        <label>Rola:</label>
+        <select class="form-select" @bind="registerModel.Role">
+            <option value="">-- wybierz rolę --</option>
+            <option value="Organizer">Organizator</option>
+            <option value="Participant">Uczestnik</option>
+        </select>
+        <ValidationMessage For="@(() => registerModel.Role)" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Zarejestruj</button>
+</EditForm>
+
+@if (submitted)
+{
+    <div class="alert alert-success mt-3">
+        Zarejestrowano: <strong>@registerModel.Email</strong> jako <strong>@registerModel.Role</strong>
+    </div>
+}
+
+@code {
+    private RegisterModel registerModel = new()
+        {
+            Email = "example@email.com",
+            Password = "password123",
+            Role = "Participant"
+        };
+
+    private bool submitted = false;
+
+    private void HandleValidSubmit()
+    {
+        submitted = true;
+        Console.WriteLine($"Zarejestrowano: {registerModel.Email}, Rola: {registerModel.Role}");
+    }
+
+    public class RegisterModel
+    {
+        [Required(ErrorMessage = "Email jest wymagany")]
+        [EmailAddress(ErrorMessage = "Nieprawidłowy adres email")]
+        public string Email { get; set; }
+
+        [Required(ErrorMessage = "Hasło jest wymagane")]
+        [MinLength(6, ErrorMessage = "Hasło musi mieć co najmniej 6 znaków")]
+        public string Password { get; set; }
+
+        [Required(ErrorMessage = "Rola jest wymagana")]
+        public string Role { get; set; }
+    }
+}
