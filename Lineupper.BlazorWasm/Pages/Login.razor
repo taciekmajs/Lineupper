@@ -1,0 +1,89 @@
+﻿@page "/login"
+@using System.ComponentModel.DataAnnotations
+@using Lineupper.Application.Dto
+@using Lineupper.Domain.Models
+@inject HttpClient Http
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+
+<h3>Logowanie</h3>
+
+<EditForm Model="@loginModel" OnValidSubmit="@HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-3">
+        <label>Email:</label>
+        <input type="email" class="form-control" @bind="loginModel.Email" />
+        <ValidationMessage For="@(() => loginModel.Email)" />
+    </div>
+
+    <div class="mb-3">
+        <label>Hasło:</label>
+        <input type="password" class="form-control" @bind="loginModel.Password" />
+        <ValidationMessage For="@(() => loginModel.Password)" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Zaloguj</button>
+</EditForm>
+
+@if (loginSuccess.HasValue)
+{
+    if (loginSuccess.Value)
+    {
+        <div class="alert alert-success mt-3">Zalogowano pomyślnie!</div>
+    }
+    else
+    {
+        <div class="alert alert-danger mt-3">Nieprawidłowe dane logowania.</div>
+    }
+}
+
+@code {
+    private LoginModel loginModel = new()
+    {
+        Email = "",
+        Password = ""
+    };
+
+    private bool? loginSuccess = null;
+
+    private async Task HandleValidSubmit()
+    {
+        var response = await Http.PostAsJsonAsync("api/User/Login", new LoginDto{Email = loginModel.Email, Password = loginModel.Password});
+
+        if (response.IsSuccessStatusCode)
+        {
+            var auth = await response.Content.ReadFromJsonAsync<User>();
+
+            if (auth is not null)
+            {
+                await LocalStorage.SetItemAsync("user", auth);
+                loginSuccess = true;
+                Console.WriteLine("Zalogowano!");
+            }
+        }
+        else
+        {
+            loginSuccess = false;
+            var error = await response.Content.ReadAsStringAsync();
+            Console.WriteLine("Błąd logowania: " + error);
+        }
+    }
+
+    public class LoginModel
+    {
+        [Required(ErrorMessage = "Email jest wymagany")]
+        [EmailAddress(ErrorMessage = "Nieprawidłowy email")]
+        public string Email { get; set; }
+
+        [Required(ErrorMessage = "Hasło jest wymagane")]
+        public string Password { get; set; }
+    }
+
+    public class AuthResponse
+    {
+        public string Email { get; set; }
+        public string Role { get; set; }
+        public string Token { get; set; }
+    }
+}

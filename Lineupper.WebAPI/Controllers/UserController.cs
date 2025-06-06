@@ -16,6 +16,15 @@ namespace Lineupper.WebAPI.Controllers
             _unit = unit;
         }
 
+        [HttpPost("Login")]
+        public async Task<IActionResult> Login(LoginDto loginDto)
+        {
+            var user = await _unit.Users.GetByEmailAsync(loginDto.Email);
+            if (user == null) return NotFound();
+            if (user.PasswordHash != loginDto.Password) return NotFound();
+            else { return Ok(user); }
+        }
+
         [HttpGet("{email}")]
         public async Task<IActionResult> GetByEmail(string email)
         {
@@ -38,14 +47,16 @@ namespace Lineupper.WebAPI.Controllers
                 Email = user.Email,
                 Username = user.Username,
                 PasswordHash = user.Password,
-                Id = new Guid()
+                Id = new Guid(),
+                UserType = SharedKernel.Enums.UserType.Participant
             };
             var organizer = new Organizer
             {
                 Email = user.Email,
                 Username = user.Username,
                 PasswordHash = user.Password,
-                Id = new Guid()
+                Id = new Guid(),
+                UserType = SharedKernel.Enums.UserType.Organizer
             };
 
             if (user.UserType == SharedKernel.Enums.UserType.Participant)
