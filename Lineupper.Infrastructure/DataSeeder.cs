@@ -22,14 +22,16 @@ namespace Lineupper.Infrastructure
                         Id = Guid.NewGuid(),
                         Username = "organizer1",
                         Email = "org1@example.com",
-                        PasswordHash = "hashedpassword"
+                        PasswordHash = "hashedpassword",
+                        UserType = SharedKernel.Enums.UserType.Organizer
                     },
                     new Organizer
                     {
                         Id = Guid.NewGuid(),
                         Username = "organizer2",
                         Email = "org2@example.com",
-                        PasswordHash = "hashedpassword2"
+                        PasswordHash = "hashedpassword2",
+                        UserType = SharedKernel.Enums.UserType.Organizer
                     }
                 };
 
@@ -47,14 +49,16 @@ namespace Lineupper.Infrastructure
                         Id = Guid.NewGuid(),
                         Username = "participant1",
                         Email = "part1@example.com",
-                        PasswordHash = "securepass"
+                        PasswordHash = "securepass",
+                        UserType = SharedKernel.Enums.UserType.Participant
                     },
                     new Participant
                     {
                         Id = Guid.NewGuid(),
                         Username = "participant2",
                         Email = "part2@example.com",
-                        PasswordHash = "securepass2"
+                        PasswordHash = "securepass2",
+                        UserType = SharedKernel.Enums.UserType.Participant
                     }
                 };
 
