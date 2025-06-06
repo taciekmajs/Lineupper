@@ -1,5 +1,6 @@
 ﻿@page "/festivals"
-@using System.Linq
+@using System.Net.Http.Json
+@inject HttpClient Http
 
 <h3>Lista festiwali</h3>
 
@@ -22,35 +23,41 @@
     </div>
 </div>
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Nazwa</th>
-            <th>Data</th>
-            <th>Lokalizacja</th>
-            <th>Status</th>
-            <th>Akcja</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var fest in FilteredFestivals)
-        {
-            <tr>
-                <td>@fest.Name</td>
-                <td>@fest.Date.ToShortDateString()</td>
-                <td>@fest.Location</td>
-                <td>@fest.Status</td>
-                <td>
-                    <a href="/festivaldetails/@fest.Id" class="btn btn-sm btn-primary">Szczegóły</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
-
-@if (!FilteredFestivals.Any())
+@if (FilteredFestivals is null)
+{
+    <p>Ładowanie danych...</p>
+}
+else if (!FilteredFestivals.Any())
 {
     <p>Brak festiwali spełniających kryteria wyszukiwania.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Nazwa</th>
+                <th>Data</th>
+                <th>Lokalizacja</th>
+                <th>Status</th>
+                <th>Akcja</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var fest in FilteredFestivals)
+            {
+                <tr>
+                    <td>@fest.Name</td>
+                    <td>@fest.StartDate.ToShortDateString()</td>
+                    <td>@fest.Location</td>
+                    <td>@fest.Status</td>
+                    <td>
+                        <a href="/festivaldetails/@fest.Id" class="btn btn-sm btn-primary">Szczegóły</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 }
 
 @code {
@@ -58,26 +65,27 @@
     private string searchLocation = "";
     private string searchStatus = "";
 
-    private List<Festival> allFestivals = new()
-    {
-        new Festival { Id = 1, Name = "Rockowy Szał", Date = DateTime.Today.AddDays(30), Location = "Kraków", Status = "Przed głosowaniem" },
-        new Festival { Id = 2, Name = "Elektro Fest", Date = DateTime.Today.AddDays(60), Location = "Warszawa", Status = "Po głosowaniu" },
-        new Festival { Id = 3, Name = "Jazz Nights", Date = DateTime.Today.AddDays(15), Location = "Poznań", Status = "Przed głosowaniem" },
-    };
+    private List<FestivalDto>? allFestivals;
 
-    private IEnumerable<Festival> FilteredFestivals =>
-        allFestivals.Where(f =>
+    private IEnumerable<FestivalDto> FilteredFestivals =>
+        allFestivals?.Where(f =>
             (string.IsNullOrWhiteSpace(searchName) || f.Name.Contains(searchName, StringComparison.OrdinalIgnoreCase)) &&
             (string.IsNullOrWhiteSpace(searchLocation) || f.Location.Contains(searchLocation, StringComparison.OrdinalIgnoreCase)) &&
             (string.IsNullOrWhiteSpace(searchStatus) || f.Status == searchStatus)
-        );
+        ) ?? Enumerable.Empty<FestivalDto>();
 
-    public class Festival
+    protected override async Task OnInitializedAsync()
     {
-        public int Id { get; set; }
+        allFestivals = await Http.GetFromJsonAsync<List<FestivalDto>>("api/Festival");
+    }
+
+    public class FestivalDto
+    {
+        public Guid Id { get; set; }
         public string Name { get; set; }
-        public DateTime Date { get; set; }
         public string Location { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
         public string Status { get; set; }
     }
 }

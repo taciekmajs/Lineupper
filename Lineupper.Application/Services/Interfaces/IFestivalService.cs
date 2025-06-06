@@ -1,4 +1,5 @@
 ﻿using Lineupper.Application.Dto;
+using Lineupper.Domain.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,5 +13,6 @@ namespace Lineupper.Application.Services.Interfaces
         Task<IEnumerable<FestivalDto>> GetAllAsync();
         Task<FestivalDto?> GetByIdAsync(Guid id);
         Task CreateAsync(FestivalDto festivalDto);
+        Task<IEnumerable<Festival>> GetFestivalsByOrganizer(Guid organizerId);
     }
 }

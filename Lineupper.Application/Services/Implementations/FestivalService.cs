@@ -40,5 +40,12 @@ namespace Lineupper.Application.Services.Implementations
             await _unitOfWork.Festivals.AddAsync(festival);
             await _unitOfWork.SaveChangesAsync();
         }
+
+        public async Task<IEnumerable<Festival>> GetFestivalsByOrganizer(Guid organizerId)
+        {
+            var festivals = await _unitOfWork.Festivals.GetByOrganizerIdAsync(organizerId);
+            return festivals;
+        }
+
     }
 }

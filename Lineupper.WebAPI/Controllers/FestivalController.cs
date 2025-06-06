@@ -30,6 +30,13 @@ namespace Lineupper.WebAPI.Controllers
             return Ok(festival);
         }
 
+        [HttpGet("GetFestivalsByOrganizer")]
+        public async Task<IActionResult> GetFestivalsByOrganizer(Guid organizerId)
+        {
+            var festivals = await _festivalService.GetFestivalsByOrganizer(organizerId);
+            return Ok(festivals);
+        }
+
         [HttpPost]
         public async Task<IActionResult> Create(FestivalDto festivalDto)
         {

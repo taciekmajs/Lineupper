@@ -1,0 +1,113 @@
+﻿@page "/myfestivals"
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+@inject HttpClient Http
+@inject NavigationManager Navigation
+
+<h3>Moje festiwale</h3>
+
+<button class="btn btn-success mb-3" @onclick="NavigateToCreate">+ Dodaj nowy festiwal</button>
+
+@if (festivals == null)
+{
+    <p>Ładowanie festiwali...</p>
+}
+else if (!festivals.Any())
+{
+    <p>Nie masz jeszcze żadnych festiwali.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Nazwa</th>
+                <th>Data</th>
+                <th>Lokalizacja</th>
+                <th>Status</th>
+                <th>Akcje</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var fest in festivals)
+            {
+                <tr>
+                    <td>@fest.Name</td>
+                    <td>@fest.StartDate.ToShortDateString()</td>
+                    <td>@fest.Location</td>
+                    <td>@fest.Status</td>
+                    <td>
+                        <a class="btn btn-sm btn-primary me-1" href="/festivaldetails/@fest.Id">Szczegóły</a>
+                        <button class="btn btn-sm btn-danger" @onclick="() => DeleteFestival(fest.Id)">Usuń</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<FestivalDto>? festivals;
+    private Guid organizerId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = await LocalStorage.GetItemAsync<AuthUserDto>("user");
+
+        if (user is null || user.UserType != SharedKernel.Enums.UserType.Organizer)
+        {
+            festivals = new();
+            return;
+        }
+
+        organizerId = user.Id;
+        await LoadFestivals();
+    }
+
+    private async Task LoadFestivals()
+    {
+        festivals = await Http.GetFromJsonAsync<List<FestivalDto>>($"api/Festival/GetFestivalsByOrganizer?organizerID={organizerId}");
+    }
+
+    private async Task DeleteFestival(Guid id)
+    {
+        var confirmed = await JS.InvokeAsync<bool>("confirm", "Na pewno chcesz usunąć ten festiwal?");
+        if (!confirmed) return;
+
+        var response = await Http.DeleteAsync($"api/Festival/{id}");
+        if (response.IsSuccessStatusCode)
+        {
+            festivals = festivals!.Where(f => f.Id != id).ToList();
+        }
+        else
+        {
+            Console.WriteLine("Błąd przy usuwaniu festiwalu.");
+        }
+    }
+
+    private void NavigateToCreate()
+    {
+        Navigation.NavigateTo("/create-festival");
+    }
+
+    [Inject]
+    public IJSRuntime JS { get; set; } = default!;
+
+    public class FestivalDto
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
+        public string Location { get; set; }
+        public string Status { get; set; }
+    }
+
+    public class AuthUserDto
+    {
+        public Guid Id { get; set; }
+        public string Username { get; set; }
+        public string Email { get; set; }
+        public string PasswordHash { get; set; }
+        public SharedKernel.Enums.UserType UserType { get; set; }
+    }
+}

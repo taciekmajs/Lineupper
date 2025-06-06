@@ -1,0 +1,58 @@
+﻿@page "/festivaldetails/{id:guid}"
+@inject HttpClient Http
+
+<h3>Szczegóły festiwalu</h3>
+
+@if (festival == null)
+{
+    <p>Ładowanie...</p>
+}
+else
+{
+    <h4>@festival.Name</h4>
+    <p><strong>Data:</strong> @festival.Date.ToShortDateString()</p>
+    <p><strong>Lokalizacja:</strong> @festival.Location</p>
+    <p><strong>Status:</strong> @festival.Status</p>
+
+    <h5>Zespoły grające:</h5>
+    @if (festival.Bands?.Any() == true)
+    {
+        <ul>
+            @foreach (var band in festival.Bands)
+            {
+                <li>@band.Name</li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p>Brak zespołów przypisanych do tego festiwalu.</p>
+    }
+}
+
+@code {
+    [Parameter]
+    public Guid id { get; set; }
+
+    private FestivalDto? festival;
+
+    protected override async Task OnInitializedAsync()
+    {
+        festival = await Http.GetFromJsonAsync<FestivalDto>($"api/Festival/{id}");
+    }
+
+    public class FestivalDto
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; }
+        public DateTime Date { get; set; }
+        public string Location { get; set; }
+        public string Status { get; set; }
+        public List<BandDto>? Bands { get; set; }
+    }
+
+    public class BandDto
+    {
+        public string Name { get; set; }
+    }
+}
