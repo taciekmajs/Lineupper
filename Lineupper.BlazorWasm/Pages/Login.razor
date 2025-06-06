@@ -4,6 +4,7 @@
 @using Lineupper.Domain.Models
 @inject HttpClient Http
 @inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+@inject NavigationManager Navigation
 
 <h3>Logowanie</h3>
 
@@ -53,13 +54,14 @@
 
         if (response.IsSuccessStatusCode)
         {
-            var auth = await response.Content.ReadFromJsonAsync<User>();
+            var auth = await response.Content.ReadFromJsonAsync<AuthUserDto>();
 
             if (auth is not null)
             {
                 await LocalStorage.SetItemAsync("user", auth);
                 loginSuccess = true;
                 Console.WriteLine("Zalogowano!");
+                Navigation.NavigateTo("/home", forceLoad: true);
             }
         }
         else
@@ -80,10 +82,12 @@
         public string Password { get; set; }
     }
 
-    public class AuthResponse
+    public class AuthUserDto
     {
+        public Guid Id { get; set; }
+        public string Username { get; set; }
         public string Email { get; set; }
-        public string Role { get; set; }
-        public string Token { get; set; }
+        public string PasswordHash { get; set; }
+        public SharedKernel.Enums.UserType UserType { get; set; } // enum
     }
 }

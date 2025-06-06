@@ -1,6 +1,12 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+@inject NavigationManager Navigation
+@using SharedKernel.Enums
+@using static Lineupper.BlazorWasm.Pages.Login
+
+
+<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="">Lineupper.BlazorWasm</a>
+        <a class="navbar-brand" href="">Lineupper</a>
         <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -14,36 +20,62 @@
                 <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
             </NavLink>
         </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="register">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Registration
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="festivals">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> List of Festivals
-            </NavLink>
-        </div>
+        @if (user == null)
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="login">
+                    <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Login
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="register">
+                    <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Registration
+                </NavLink>
+            </div>
+        }
+        
+        @if (user != null && user.UserType == UserType.Participant)
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="festivals">
+                    <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> List of Festivals
+                </NavLink>
+            </div>
+        }
+
+        @if (user != null)
+        {
+            <li class="nav-item">
+                <button class="btn btn-link nav-link" @onclick="Logout">Wyloguj</button>
+            </li>
+        }
+        
     </nav>
 </div>
 
 @code {
     private bool collapseNavMenu = true;
+    private AuthUserDto user;
 
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (await LocalStorage.ContainKeyAsync("user"))
+        {
+            user = await LocalStorage.GetItemAsync<AuthUserDto>("user");
+        }
+    }
+
+    private async Task Logout()
+    {
+        await LocalStorage.RemoveItemAsync("user");
+        user = null;
+        Navigation.NavigateTo("/login", forceLoad: true);
     }
 }
