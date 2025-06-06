@@ -1,4 +1,5 @@
-﻿using Lineupper.Domain.Contracts;
+﻿using Lineupper.Application.Dto;
+using Lineupper.Domain.Contracts;
 using Lineupper.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,12 +23,43 @@ namespace Lineupper.WebAPI.Controllers
             return user != null ? Ok(user) : NotFound();
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Create(User user)
+        [HttpGet("GetAllUsers")]
+        public async Task<IActionResult> GetAllUsers()
         {
-            await _unit.Users.AddAsync(user);
-            await _unit.SaveChangesAsync();
-            return Ok(user);
+            var users = await _unit.Users.GetAllAsync();
+            return Ok(users);
+        }
+
+        [HttpPost("Create")]
+        public async Task<IActionResult> Create(RegisterUserDto user)
+        {
+            var participant = new Participant
+            {
+                Email = user.Email,
+                Username = user.Username,
+                PasswordHash = user.Password,
+                Id = new Guid()
+            };
+            var organizer = new Organizer
+            {
+                Email = user.Email,
+                Username = user.Username,
+                PasswordHash = user.Password,
+                Id = new Guid()
+            };
+
+            if (user.UserType == SharedKernel.Enums.UserType.Participant)
+            {
+                await _unit.Users.AddAsync(participant);
+                await _unit.SaveChangesAsync();
+                return Ok(participant);
+            }
+            else
+            {
+                await _unit.Users.AddAsync(organizer);
+                await _unit.SaveChangesAsync();
+                return Ok(organizer);
+            }
         }
     }
 }

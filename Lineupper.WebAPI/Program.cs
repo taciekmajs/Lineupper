@@ -42,7 +42,20 @@ builder.Services.AddScoped<IUnitOfWork, LineupperUnitOfWork>();
 // AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowWasm",
+        builder => builder
+            .WithOrigins("https://localhost:7297") 
+            .AllowAnyHeader()
+            .AllowAnyMethod());
+});
+
+
+
 var app = builder.Build();
+app.UseCors("AllowWasm");
+
 
 using (var scope = app.Services.CreateScope())
 {

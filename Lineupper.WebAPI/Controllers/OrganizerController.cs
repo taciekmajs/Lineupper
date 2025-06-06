@@ -30,8 +30,8 @@ namespace Lineupper.WebAPI.Controllers
             return Ok(organizer);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Create(OrganizerDto dto)
+        [HttpPost("Create")]
+        public async Task<IActionResult> Create([FromBody]OrganizerDto dto)
         {
             var created = await _organizerService.CreateAsync(dto);
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);

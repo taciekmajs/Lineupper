@@ -22,6 +22,7 @@ namespace Lineupper.Application.Mappings
             CreateMap<Band, BandDto>().ReverseMap();
             CreateMap<Vote, VoteDto>().ReverseMap();
             CreateMap<ScheduleItem, ScheduleItemDto>().ReverseMap();
+            CreateMap<User, RegisterUserDto>().ReverseMap();
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Lineupper.Application.Dto;
+using Lineupper.Domain.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,5 +14,6 @@ namespace Lineupper.Application.Services.Interfaces
         Task<UserDto?> GetByIdAsync(Guid id);
         Task AddAsync(UserDto userDto);
         Task DeleteAsync(Guid id);
+        Task<User> RegisterUser(RegisterUserDto registerUserDto);
     }
 }

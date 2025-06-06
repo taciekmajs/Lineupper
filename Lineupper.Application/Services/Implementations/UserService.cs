@@ -50,5 +50,23 @@ namespace Lineupper.Application.Services.Implementations
                 await _unitOfWork.SaveChangesAsync();
             }
         }
+
+        public async Task<User> RegisterUser(RegisterUserDto registerUserDto)
+        {
+            if (registerUserDto.UserType == SharedKernel.Enums.UserType.Participant)
+            {
+                var user = _mapper.Map<Participant>(registerUserDto);
+                await _unitOfWork.Participants.AddAsync(user);
+                await _unitOfWork.SaveChangesAsync();
+                return user;
+            }
+            else
+            {
+                var user = _mapper.Map<Organizer>(registerUserDto);
+                await _unitOfWork.Organizers.AddAsync(user);
+                await _unitOfWork.SaveChangesAsync();
+                return user;
+            }
+        }
     }
 }

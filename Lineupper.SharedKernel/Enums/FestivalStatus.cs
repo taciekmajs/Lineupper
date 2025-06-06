@@ -7,4 +7,11 @@
         ScheduleReady,
         Finished
     }
+
+    public enum UserType
+    {
+        Participant,
+        Organizer
+    }
+
 }
