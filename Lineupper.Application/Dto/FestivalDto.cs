@@ -1,4 +1,7 @@
-﻿namespace Lineupper.Application.Dto
+﻿using Lineupper.Domain.Models;
+using Lineupper.SharedKernel.Enums;
+
+namespace Lineupper.Application.Dto
 {
     public class FestivalDto
     {
@@ -7,7 +10,10 @@
         public string Location { get; set; } = default!;
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
-        public string Status { get; set; } = default!;
+        public FestivalStatus Status { get; set; } = default!;
         public Guid OrganizerId { get; set; }
+        public List<BandDto> Bands { get; set; }
+        public TimeSpan ConcertStartTime { get; set; }
+        public TimeSpan ConcertEndTime { get; set; }
     }
 }

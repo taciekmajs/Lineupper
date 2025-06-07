@@ -32,7 +32,8 @@ namespace Lineupper.Infrastructure
             modelBuilder.Entity<Festival>()
                 .HasOne(f => f.Organizer)
                 .WithMany(o => o.Festivals)
-                .HasForeignKey(f => f.OrganizerId);
+                .HasForeignKey(f => f.OrganizerId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Vote>()
                 .HasOne(v => v.Participant)

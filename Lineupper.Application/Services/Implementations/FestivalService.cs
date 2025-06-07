@@ -36,9 +36,33 @@ namespace Lineupper.Application.Services.Implementations
 
         public async Task CreateAsync(FestivalDto festivalDto)
         {
-            var festival = _mapper.Map<Festival>(festivalDto);
-            await _unitOfWork.Festivals.AddAsync(festival);
-            await _unitOfWork.SaveChangesAsync();
+            try
+            {
+                var festival = _mapper.Map<Festival>(festivalDto);
+                festival.Id = Guid.NewGuid();
+
+                List<Band> bands = new List<Band>();
+                foreach (var b in festivalDto.Bands)
+                {
+                    var band = _mapper.Map<Band>(b);
+                    band.FestivalId = festival.Id;
+                    band.Id = Guid.NewGuid();
+                    bands.Add(band);
+                }
+                festival.Bands = bands;
+                await _unitOfWork.Festivals.AddAsync(festival);
+                foreach (var b in bands)
+                {
+                    b.FestivalId = festival.Id;
+                    await _unitOfWork.Bands.AddAsync(b);
+                }
+
+                await _unitOfWork.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                
+            }
         }
 
         public async Task<IEnumerable<Festival>> GetFestivalsByOrganizer(Guid organizerId)

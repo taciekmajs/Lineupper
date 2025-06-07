@@ -1,0 +1,217 @@
+﻿@page "/createfestival"
+@inject HttpClient Http
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+@inject NavigationManager Navigation
+
+@using System.ComponentModel.DataAnnotations
+@using Lineupper.Application.Dto
+@using Lineupper.SharedKernel.Enums
+
+<h3>Utwórz festiwal</h3>
+
+<EditForm Model="@festivalModel" OnValidSubmit="HandleCreateFestival" @onsubmit:preventDefault>
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-3">
+        <label>Nazwa:</label>
+        <InputText class="form-control" @bind-Value="festivalModel.Name" />
+        <ValidationMessage For="@(() => festivalModel.Name)" />
+    </div>
+    <div class="mb-3">
+        <label>Lokalizacja:</label>
+        <InputText class="form-control" @bind-Value="festivalModel.Location" />
+        <ValidationMessage For="@(() => festivalModel.Location)" />
+    </div>
+    <div class="mb-3">
+        <label>Data rozpoczęcia:</label>
+        <InputDate class="form-control" @bind-Value="festivalModel.StartDate" />
+        <ValidationMessage For="@(() => festivalModel.StartDate)" />
+    </div>
+    <div class="mb-3">
+        <label>Data zakończenia:</label>
+        <InputDate class="form-control" @bind-Value="festivalModel.EndDate" />
+        <ValidationMessage For="@(() => festivalModel.EndDate)" />
+    </div>
+    <div class="mb-3">
+        <label>Godzina rozpoczęcia koncertów:</label>
+        <InputText type="time" class="form-control" @bind-Value="festivalModel.ConcertStartTime" />
+    </div>
+    <div class="mb-3">
+        <label>Godzina zakończenia koncertów:</label>
+        <InputText type="time" class="form-control" @bind-Value="festivalModel.ConcertEndTime" />
+    </div>
+
+    <h5>Zespoły:</h5>
+    @if (festivalModel.Bands.Any())
+    {
+        <ul class="list-group mb-3">
+            @foreach (var band in festivalModel.Bands)
+            {
+                <li class="list-group-item d-flex justify-content-between">
+                    <span>@band.Name (@band.Genre), set: @band.SetDurationMinutes min</span>
+                    <button class="btn btn-sm btn-danger" @onclick="() => RemoveBand(band)">Usuń</button>
+                </li>
+            }
+        </ul>
+    }
+    <button type="button" class="btn btn-secondary mb-3" @onclick="OpenModal">Dodaj zespół</button>
+
+    <button type="submit" class="btn btn-success">Utwórz festiwal</button>
+</EditForm>
+
+@if (showAddBandModal)
+{
+    <div class="modal fade show d-block" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Dodaj zespół</h5>
+                    <button type="button" class="btn-close" @onclick="CloseModal"></button>
+                </div>
+                <div class="modal-body">
+                    <input class="form-control mb-2" @bind="newBand.Name" placeholder="Nazwa zespołu" />
+                    <input class="form-control mb-2" @bind="newBand.Genre" placeholder="Gatunek" />
+                    <input type="number" class="form-control" @bind="newBand.SetDurationMinutes" placeholder="Czas trwania (minuty)" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CloseModal">Anuluj</button>
+                    <button type="button" class="btn btn-success" @onclick="AddBand">Dodaj</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+}
+
+@code {
+    private FestivalCreateDto festivalModel = new()
+    {
+        StartDate = DateTime.Today,
+        EndDate = DateTime.Today.AddDays(1)
+    };
+
+    private BandCreateDto newBand = new();
+    private bool showAddBandModal = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = await LocalStorage.GetItemAsync<AuthUserDto>("user");
+        if (user != null)
+        {
+            festivalModel.OrganizerId = user.Id;
+        }
+    }
+
+    private void OpenModal()
+    {
+        newBand = new();
+        showAddBandModal = true;
+    }
+
+    private void CloseModal()
+    {
+        showAddBandModal = false;
+    }
+
+    private void AddBand()
+    {
+        if (string.IsNullOrWhiteSpace(newBand.Name) ||
+            string.IsNullOrWhiteSpace(newBand.Genre) ||
+            newBand.SetDurationMinutes < 1)
+        {
+            Console.WriteLine("Niepoprawne dane zespołu.");
+            return;
+        }
+
+        festivalModel.Bands.Add(new BandCreateDto
+        {
+            Name = newBand.Name,
+            Genre = newBand.Genre,
+            SetDurationMinutes = newBand.SetDurationMinutes
+        });
+
+        CloseModal();
+    }
+
+    private void RemoveBand(BandCreateDto band)
+    {
+        festivalModel.Bands.Remove(band);
+    }
+
+    private async Task HandleCreateFestival()
+    {
+        List<BandDto> bands = new List<BandDto>();
+        foreach (var b in festivalModel.Bands)
+        {
+            bands.Add(new BandDto
+            {
+                Name = b.Name,
+                Genre = b.Genre,
+                SetDuration = b.SetDurationMinutes
+            });
+        }
+
+        var festivalDto = new FestivalDto()
+        {
+            Id = Guid.NewGuid(),
+            Name = festivalModel.Name,
+            Location = festivalModel.Location,
+            StartDate = festivalModel.StartDate,
+            EndDate = festivalModel.EndDate,
+            Status = FestivalStatus.BeforeVoting,
+            OrganizerId = festivalModel.OrganizerId,
+            Bands = bands,
+            ConcertStartTime = TimeSpan.Parse(festivalModel.ConcertStartTime),
+            ConcertEndTime = TimeSpan.Parse(festivalModel.ConcertEndTime)
+        };
+
+        var response = await Http.PostAsJsonAsync("api/Festival/Create", festivalDto);
+        if (response.IsSuccessStatusCode)
+        {
+            Navigation.NavigateTo("/myfestivals");
+        }
+        else
+        {
+            var error = await response.Content.ReadAsStringAsync();
+            Console.WriteLine("Błąd: " + error);
+        }
+    }
+
+    public class BandCreateDto
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Genre { get; set; } = string.Empty;
+        public int SetDurationMinutes { get; set; }
+    }
+
+    public class FestivalCreateDto
+    {
+        [Required(ErrorMessage = "Nazwa festiwalu jest wymagana")]
+        public string Name { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Lokalizacja jest wymagana")]
+        public string Location { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Data rozpoczęcia jest wymagana")]
+        public DateTime StartDate { get; set; }
+
+        [Required(ErrorMessage = "Data zakończenia jest wymagana")]
+        public DateTime EndDate { get; set; }
+
+        public string ConcertStartTime { get; set; } = "18:00";
+        public string ConcertEndTime { get; set; } = "23:00";
+
+        public Guid OrganizerId { get; set; }
+        public List<BandCreateDto> Bands { get; set; } = new();
+    }
+
+    public class AuthUserDto
+    {
+        public Guid Id { get; set; }
+        public string Username { get; set; }
+        public string Email { get; set; }
+        public string PasswordHash { get; set; }
+        public UserType UserType { get; set; }
+    }
+}

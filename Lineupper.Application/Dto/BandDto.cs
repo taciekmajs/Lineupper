@@ -6,5 +6,6 @@
         public string Name { get; set; } = default!;
         public string Genre { get; set; } = default!;
         public Guid FestivalId { get; set; }
+        public int SetDuration { get; set; }
     }
 }

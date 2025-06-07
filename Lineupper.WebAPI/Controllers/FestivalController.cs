@@ -37,7 +37,7 @@ namespace Lineupper.WebAPI.Controllers
             return Ok(festivals);
         }
 
-        [HttpPost]
+        [HttpPost("Create")]
         public async Task<IActionResult> Create(FestivalDto festivalDto)
         {
             await _festivalService.CreateAsync(festivalDto);
