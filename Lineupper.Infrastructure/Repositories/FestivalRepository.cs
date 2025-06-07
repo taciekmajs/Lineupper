@@ -27,5 +27,6 @@ namespace Lineupper.Infrastructure.Repositories
                 .Include(f => f.Schedule)
                 .FirstOrDefaultAsync(f => f.Id == id);
         }
+
     }
 }

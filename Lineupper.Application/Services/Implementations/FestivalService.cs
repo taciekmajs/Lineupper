@@ -71,5 +71,15 @@ namespace Lineupper.Application.Services.Implementations
             return festivals;
         }
 
+        public async Task DeleteFestival(Guid festivalId)
+        {
+            var festival = await _unitOfWork.Festivals.GetByIdAsync(festivalId);
+            if (festival != null)
+            {
+                _unitOfWork.Festivals.Remove(festival);
+            }
+            await _unitOfWork.SaveChangesAsync();
+        }
+
     }
 }

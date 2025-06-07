@@ -1,4 +1,5 @@
 ﻿@page "/myfestivals"
+@using Lineupper.Domain.Models
 @inject Blazored.LocalStorage.ILocalStorageService LocalStorage
 @inject HttpClient Http
 @inject NavigationManager Navigation
@@ -46,7 +47,7 @@ else
 }
 
 @code {
-    private List<FestivalDto>? festivals;
+    private List<Festival>? festivals;
     private Guid organizerId;
 
     protected override async Task OnInitializedAsync()
@@ -65,15 +66,14 @@ else
 
     private async Task LoadFestivals()
     {
-        festivals = await Http.GetFromJsonAsync<List<FestivalDto>>($"api/Festival/GetFestivalsByOrganizer?organizerID={organizerId}");
+        festivals = await Http.GetFromJsonAsync<List<Festival>>($"api/Festival/GetFestivalsByOrganizer?organizerID={organizerId}");
     }
 
     private async Task DeleteFestival(Guid id)
     {
         var confirmed = await JS.InvokeAsync<bool>("confirm", "Na pewno chcesz usunąć ten festiwal?");
         if (!confirmed) return;
-
-        var response = await Http.DeleteAsync($"api/Festival/{id}");
+        var response = await Http.DeleteAsync($"api/Festival/Delete?festivalId={id}");
         if (response.IsSuccessStatusCode)
         {
             festivals = festivals!.Where(f => f.Id != id).ToList();

@@ -14,5 +14,6 @@ namespace Lineupper.Application.Services.Interfaces
         Task<FestivalDto?> GetByIdAsync(Guid id);
         Task CreateAsync(FestivalDto festivalDto);
         Task<IEnumerable<Festival>> GetFestivalsByOrganizer(Guid organizerId);
+        Task DeleteFestival(Guid festivalId);
     }
 }

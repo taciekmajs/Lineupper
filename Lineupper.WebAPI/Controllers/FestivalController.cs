@@ -43,5 +43,12 @@ namespace Lineupper.WebAPI.Controllers
             await _festivalService.CreateAsync(festivalDto);
             return Ok();
         }
+
+        [HttpDelete("Delete")]
+        public async Task<IActionResult> DeleteFestival(Guid festivalId)
+        {
+            await _festivalService.DeleteFestival(festivalId);
+            return Ok();
+        }
     }
 }
