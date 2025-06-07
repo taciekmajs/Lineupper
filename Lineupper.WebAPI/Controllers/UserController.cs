@@ -42,6 +42,7 @@ namespace Lineupper.WebAPI.Controllers
         [HttpPost("Create")]
         public async Task<IActionResult> Create(RegisterUserDto user)
         {
+            user.UserType = SharedKernel.Enums.UserType.Organizer;
             var participant = new Participant
             {
                 Email = user.Email,

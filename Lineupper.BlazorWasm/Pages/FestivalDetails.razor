@@ -1,4 +1,5 @@
 ﻿@page "/festivaldetails/{id:guid}"
+@using Lineupper.SharedKernel.Enums
 @inject HttpClient Http
 
 <h3>Szczegóły festiwalu</h3>
@@ -9,25 +10,30 @@
 }
 else
 {
-    <h4>@festival.Name</h4>
-    <p><strong>Data:</strong> @festival.Date.ToShortDateString()</p>
-    <p><strong>Lokalizacja:</strong> @festival.Location</p>
-    <p><strong>Status:</strong> @festival.Status</p>
+    <div class="card p-4 shadow-sm">
+        <h4>@festival.Name</h4>
+        <p><strong>Data:</strong> @festival.StartDate.ToShortDateString() – @festival.EndDate.ToShortDateString()</p>
+        <p><strong>Godziny koncertów:</strong> @festival.ConcertStartTime - @festival.ConcertEndTime</p>
+        <p><strong>Lokalizacja:</strong> @festival.Location</p>
+        <p><strong>Status:</strong> @festival.Status</p>
 
-    <h5>Zespoły grające:</h5>
-    @if (festival.Bands?.Any() == true)
-    {
-        <ul>
-            @foreach (var band in festival.Bands)
-            {
-                <li>@band.Name</li>
-            }
-        </ul>
-    }
-    else
-    {
-        <p>Brak zespołów przypisanych do tego festiwalu.</p>
-    }
+        <h5 class="mt-4">Zespoły:</h5>
+        @if (festival.Bands.Any())
+        {
+            <ul class="list-group">
+                @foreach (var band in festival.Bands)
+                {
+                    <li class="list-group-item">
+                        <strong>@band.Name</strong> (@band.Genre), set: @band.SetDuration min
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p>Brak przypisanych zespołów.</p>
+        }
+    </div>
 }
 
 @code {
@@ -44,15 +50,20 @@ else
     public class FestivalDto
     {
         public Guid Id { get; set; }
-        public string Name { get; set; }
-        public DateTime Date { get; set; }
-        public string Location { get; set; }
-        public string Status { get; set; }
-        public List<BandDto>? Bands { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Location { get; set; } = string.Empty;
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
+        public TimeSpan ConcertStartTime { get; set; }
+        public TimeSpan ConcertEndTime { get; set; }
+        public FestivalStatus Status { get; set; } 
+        public List<BandDto> Bands { get; set; } = new();
     }
 
     public class BandDto
     {
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Genre { get; set; } = string.Empty;
+        public int SetDuration { get; set; }
     }
 }

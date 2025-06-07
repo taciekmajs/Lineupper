@@ -10,6 +10,8 @@ namespace Lineupper.Domain.Models
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public FestivalStatus Status { get; set; }
+        public TimeSpan ConcertStartTime { get; set; }
+        public TimeSpan ConcertEndTime { get; set; }
 
         public Guid OrganizerId { get; set; }
         public Organizer Organizer { get; set; } = default!;

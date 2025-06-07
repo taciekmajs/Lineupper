@@ -31,7 +31,10 @@ namespace Lineupper.Application.Services.Implementations
         public async Task<FestivalDto?> GetByIdAsync(Guid id)
         {
             var festival = await _unitOfWork.Festivals.GetByIdAsync(id);
-            return _mapper.Map<FestivalDto>(festival);
+            var bands = await _unitOfWork.Bands.GetByFestivalIdAsync(id);
+            festival.Bands = (ICollection<Band>)bands;
+            var mapped = _mapper.Map<FestivalDto>(festival);
+            return mapped;
         }
 
         public async Task CreateAsync(FestivalDto festivalDto)

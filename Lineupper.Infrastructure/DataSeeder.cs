@@ -9,7 +9,6 @@ namespace Lineupper.Infrastructure
     {
         public static void SeedDatabase(LineupperDbContext context)
         {
-            context.Database.EnsureDeleted();
             context.Database.Migrate();
 
             // SPRAWDZANIE I DODAWANIE ORGANIZATORÓW

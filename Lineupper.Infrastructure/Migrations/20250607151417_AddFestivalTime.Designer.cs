@@ -3,6 +3,7 @@ using System;
 using Lineupper.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Lineupper.Infrastructure.Migrations
 {
     [DbContext(typeof(LineupperDbContext))]
-    partial class LineupperDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250607151417_AddFestivalTime")]
+    partial class AddFestivalTime
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.4");
