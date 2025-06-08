@@ -1,5 +1,6 @@
 ﻿@page "/festivals"
 @using System.Net.Http.Json
+@using Lineupper.Application.Dto
 @inject HttpClient Http
 
 <h3>Lista festiwali</h3>
@@ -71,21 +72,11 @@ else
         allFestivals?.Where(f =>
             (string.IsNullOrWhiteSpace(searchName) || f.Name.Contains(searchName, StringComparison.OrdinalIgnoreCase)) &&
             (string.IsNullOrWhiteSpace(searchLocation) || f.Location.Contains(searchLocation, StringComparison.OrdinalIgnoreCase)) &&
-            (string.IsNullOrWhiteSpace(searchStatus) || f.Status == searchStatus)
+            (string.IsNullOrWhiteSpace(searchStatus) || (f.Status == SharedKernel.Enums.FestivalStatus.BeforeVoting ? "Przed głosowaniem" : "Po głosowaniu") == searchStatus)
         ) ?? Enumerable.Empty<FestivalDto>();
 
     protected override async Task OnInitializedAsync()
     {
         allFestivals = await Http.GetFromJsonAsync<List<FestivalDto>>("api/Festival");
-    }
-
-    public class FestivalDto
-    {
-        public Guid Id { get; set; }
-        public string Name { get; set; }
-        public string Location { get; set; }
-        public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
-        public string Status { get; set; }
     }
 }

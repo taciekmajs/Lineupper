@@ -34,15 +34,6 @@
             </div>
         }
         
-        @if (user != null && user.UserType == UserType.Participant)
-        {
-            <div class="nav-item px-3">
-                <NavLink class="nav-link" href="festivals">
-                    <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> List of Festivals
-                </NavLink>
-            </div>
-        }
-
         @if (user != null && user.UserType == UserType.Organizer)
         {
             <div class="nav-item px-3">
@@ -54,9 +45,17 @@
 
         @if (user != null)
         {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="festivals">
+                    <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> List of Festivals
+                </NavLink>
+            </div>
+
             <li class="nav-item">
                 <button class="btn btn-link nav-link" @onclick="Logout">Wyloguj</button>
             </li>
+
+            
         }
         
     </nav>

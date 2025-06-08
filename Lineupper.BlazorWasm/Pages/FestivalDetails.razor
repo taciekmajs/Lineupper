@@ -1,6 +1,8 @@
 ﻿@page "/festivaldetails/{id:guid}"
+@using Lineupper.Application.Dto
 @using Lineupper.SharedKernel.Enums
 @inject HttpClient Http
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
 
 <h3>Szczegóły festiwalu</h3>
 
@@ -33,6 +35,57 @@ else
         {
             <p>Brak przypisanych zespołów.</p>
         }
+
+        @if (user is not null && user.Id == festival.OrganizerId)
+        {
+            @if (festival.Status == FestivalStatus.BeforeVoting)
+            {
+                <div class="mt-3">
+                    <button class="btn btn-warning">Wygeneruj harmonogram</button>
+                </div>
+            }
+
+            <div class="mt-4">
+                <h5>Harmonogram (placeholder)</h5>
+                <p>Tu będzie wyświetlony harmonogram po wygenerowaniu.</p>
+            </div>
+        }
+        else if (user is not null && user.Id != festival.OrganizerId)
+        {
+            @if (festival.Status == FestivalStatus.BeforeVoting)
+            {
+                <div class="mt-4">
+                    <h5>Głosowanie na zespoły</h5>
+                    <EditForm Model="@votes" OnValidSubmit="HandleVoteSubmit">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+
+                        @foreach (var vote in votes)
+                        {
+                            <div class="mb-3">
+                                <label>@vote.BandName:</label>
+                                <InputSelect class="form-select" @bind-Value="vote.SelectedValue">
+                                    <option value="">Nie znam</option>
+                                    @for (int i = 1; i <= 10; i++)
+                                    {
+                                        <option value="@i">@i</option>
+                                    }
+                                </InputSelect>
+                            </div>
+                        }
+
+                        <button type="submit" class="btn btn-primary">Zagłosuj</button>
+                    </EditForm>
+                </div>
+            }
+            else if (festival.Status == FestivalStatus.AfterVoting)
+            {
+                <div class="mt-4">
+                    <h5>Harmonogram</h5>
+                    <p>Tu będzie widoczny harmonogram koncertów.</p>
+                </div>
+            }
+        }
     </div>
 }
 
@@ -41,29 +94,38 @@ else
     public Guid id { get; set; }
 
     private FestivalDto? festival;
+    private AuthUserDto? user;
+
+    // Model głosowania: Nazwa zespołu → ocena
+    private List<VoteEntry> votes = new();
 
     protected override async Task OnInitializedAsync()
     {
+        user = await LocalStorage.GetItemAsync<AuthUserDto>("user");
         festival = await Http.GetFromJsonAsync<FestivalDto>($"api/Festival/{id}");
+
+        if (festival?.Bands != null)
+        {
+            votes = festival.Bands.Select(b => new VoteEntry
+            {
+                BandName = b.Name,
+                SelectedValue = ""
+            }).ToList();
+        }
     }
 
-    public class FestivalDto
+    private void HandleVoteSubmit()
     {
-        public Guid Id { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public string Location { get; set; } = string.Empty;
-        public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
-        public TimeSpan ConcertStartTime { get; set; }
-        public TimeSpan ConcertEndTime { get; set; }
-        public FestivalStatus Status { get; set; } 
-        public List<BandDto> Bands { get; set; } = new();
+        foreach (var vote in votes)
+        {
+            Console.WriteLine($"Zespół: {vote.BandName}, Ocena: {vote.SelectedValue}");
+        }
+        // TODO: Wyślij głosy do API
     }
 
-    public class BandDto
+    public class VoteEntry
     {
-        public string Name { get; set; } = string.Empty;
-        public string Genre { get; set; } = string.Empty;
-        public int SetDuration { get; set; }
+        public string BandName { get; set; } = string.Empty;
+        public string SelectedValue { get; set; } = string.Empty;
     }
 }

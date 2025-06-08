@@ -92,16 +92,6 @@ else
     [Inject]
     public IJSRuntime JS { get; set; } = default!;
 
-    public class FestivalDto
-    {
-        public Guid Id { get; set; }
-        public string Name { get; set; }
-        public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
-        public string Location { get; set; }
-        public string Status { get; set; }
-    }
-
     public class AuthUserDto
     {
         public Guid Id { get; set; }

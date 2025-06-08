@@ -61,7 +61,7 @@
                 await LocalStorage.SetItemAsync("user", auth);
                 loginSuccess = true;
                 Console.WriteLine("Zalogowano!");
-                Navigation.NavigateTo("/home", forceLoad: true);
+                Navigation.NavigateTo("/", forceLoad: true);
             }
         }
         else

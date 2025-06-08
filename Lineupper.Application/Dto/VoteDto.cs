@@ -6,5 +6,6 @@
         public Guid ParticipantId { get; set; }
         public Guid BandId { get; set; }
         public DateTime CreatedAt { get; set; }
+        public int VoteValue { get; set; }
     }
 }
