@@ -2,6 +2,7 @@
 @using System.ComponentModel.DataAnnotations
 @using Lineupper.Application.Dto
 @inject HttpClient Http
+@inject NavigationManager Navigation
 
 <h3>Rejestracja</h3>
 
@@ -65,7 +66,7 @@
             Email = registerModel.Email,
             Username = registerModel.Username,
             Password = registerModel.Password,
-            UserType = registerModel.Role == "Organizator" ? SharedKernel.Enums.UserType.Organizer : SharedKernel.Enums.UserType.Participant
+            UserType = registerModel.Role == "Organizer" ? SharedKernel.Enums.UserType.Organizer : SharedKernel.Enums.UserType.Participant
         };
         
         var response = await Http.PostAsJsonAsync("api/User/Create", registerUserDto); 
@@ -74,6 +75,7 @@
         {
             submitted = true;
             Console.WriteLine($"Zarejestrowano: {registerModel.Email}, Rola: {registerModel.Role}");
+            Navigation.NavigateTo("/", forceLoad: true);
         }
         else
         {

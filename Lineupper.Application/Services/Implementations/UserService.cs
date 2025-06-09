@@ -34,11 +34,43 @@ namespace Lineupper.Application.Services.Implementations
             return user == null ? null : _mapper.Map<UserDto>(user);
         }
 
-        public async Task AddAsync(UserDto userDto)
+        public async Task AddAsync(RegisterUserDto userDto)
         {
-            var user = _mapper.Map<User>(userDto);
-            await _unitOfWork.Users.AddAsync(user);
-            await _unitOfWork.SaveChangesAsync();
+            try
+            {
+                if (userDto.UserType == SharedKernel.Enums.UserType.Participant)
+                {
+                    var user = new Participant()
+                    {
+                        Id = userDto.Id,
+                        Email = userDto.Email,
+                        PasswordHash = userDto.Password,
+                        Username = userDto.Username,
+                        UserType = userDto.UserType
+                    };
+
+                    await _unitOfWork.Users.AddAsync(user);
+                    await _unitOfWork.SaveChangesAsync();
+                }
+                else
+                {
+                    var user = new Organizer()
+                    {
+                        Id = userDto.Id,
+                        Email = userDto.Email,
+                        PasswordHash = userDto.Password,
+                        Username = userDto.Username,
+                        UserType = userDto.UserType
+                    };
+
+                    await _unitOfWork.Users.AddAsync(user);
+                    await _unitOfWork.SaveChangesAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
         }
 
         public async Task DeleteAsync(Guid id)

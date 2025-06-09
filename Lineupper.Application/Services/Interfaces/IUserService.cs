@@ -12,7 +12,7 @@ namespace Lineupper.Application.Services.Interfaces
     {
         Task<IEnumerable<UserDto>> GetAllAsync();
         Task<UserDto?> GetByIdAsync(Guid id);
-        Task AddAsync(UserDto userDto);
+        Task AddAsync(RegisterUserDto registerUserDto);
         Task DeleteAsync(Guid id);
         Task<User> RegisterUser(RegisterUserDto registerUserDto);
     }

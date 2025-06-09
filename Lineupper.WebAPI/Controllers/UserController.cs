@@ -1,6 +1,6 @@
 ﻿using Lineupper.Application.Dto;
+using Lineupper.Application.Services.Interfaces;
 using Lineupper.Domain.Contracts;
-using Lineupper.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Lineupper.WebAPI.Controllers
@@ -10,10 +10,12 @@ namespace Lineupper.WebAPI.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUnitOfWork _unit;
+        private readonly IUserService _userService;
 
-        public UserController(IUnitOfWork unit)
+        public UserController(IUnitOfWork unit, IUserService userService)
         {
             _unit = unit;
+            _userService = userService;
         }
 
         [HttpPost("Login")]
@@ -42,36 +44,9 @@ namespace Lineupper.WebAPI.Controllers
         [HttpPost("Create")]
         public async Task<IActionResult> Create(RegisterUserDto user)
         {
-            user.UserType = SharedKernel.Enums.UserType.Organizer;
-            var participant = new Participant
-            {
-                Email = user.Email,
-                Username = user.Username,
-                PasswordHash = user.Password,
-                Id = new Guid(),
-                UserType = SharedKernel.Enums.UserType.Participant
-            };
-            var organizer = new Organizer
-            {
-                Email = user.Email,
-                Username = user.Username,
-                PasswordHash = user.Password,
-                Id = new Guid(),
-                UserType = SharedKernel.Enums.UserType.Organizer
-            };
-
-            if (user.UserType == SharedKernel.Enums.UserType.Participant)
-            {
-                await _unit.Users.AddAsync(participant);
-                await _unit.SaveChangesAsync();
-                return Ok(participant);
-            }
-            else
-            {
-                await _unit.Users.AddAsync(organizer);
-                await _unit.SaveChangesAsync();
-                return Ok(organizer);
-            }
+            user.Id = Guid.NewGuid();
+            await _userService.AddAsync(user);
+            return Ok();
         }
     }
 }
