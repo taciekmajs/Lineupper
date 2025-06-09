@@ -1,6 +1,7 @@
 ﻿using Lineupper.Application.Dto;
 using Lineupper.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace Lineupper.WebAPI.Controllers
 {
@@ -9,15 +10,18 @@ namespace Lineupper.WebAPI.Controllers
     public class VoteController : ControllerBase
     {
         private readonly IVoteService _voteService;
+        private readonly ILogger<VoteController> _logger;
 
-        public VoteController(IVoteService voteService)
+        public VoteController(IVoteService voteService, ILogger<VoteController> logger)
         {
             _voteService = voteService;
+            _logger = logger;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
+            _logger.LogInformation("GET all votes called");
             var votes = await _voteService.GetAllAsync();
             return Ok(votes);
         }
@@ -25,6 +29,7 @@ namespace Lineupper.WebAPI.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
+            _logger.LogInformation($"GET vote by id: {id}");
             var vote = await _voteService.GetByIdAsync(id);
             if (vote == null) return NotFound();
             return Ok(vote);
@@ -33,6 +38,7 @@ namespace Lineupper.WebAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(VoteDto voteDto)
         {
+            _logger.LogInformation("POST create vote called");
             var created = await _voteService.CreateAsync(voteDto);
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
@@ -40,6 +46,7 @@ namespace Lineupper.WebAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(Guid id, VoteDto voteDto)
         {
+            _logger.LogInformation($"PUT update vote {id}");
             var updated = await _voteService.UpdateAsync(id, voteDto);
             if (updated == null) return NotFound();
             return Ok(updated);
@@ -48,6 +55,7 @@ namespace Lineupper.WebAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
+            _logger.LogInformation($"DELETE vote {id}");
             var success = await _voteService.DeleteAsync(id);
             if (!success) return NotFound();
             return NoContent();

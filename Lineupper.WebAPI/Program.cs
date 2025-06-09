@@ -5,78 +5,99 @@ using Lineupper.Domain.Contracts;
 using Lineupper.Infrastructure;
 using Lineupper.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
+using NLog;
+using NLog.Web;
 
-var builder = WebApplication.CreateBuilder(args);
+var logger = NLog.LogManager.Setup()
+    .LoadConfigurationFromFile("nlog.config")
+    .GetCurrentClassLogger();
 
-// Konfiguracja SQLite z appsettings.json
-builder.Services.AddDbContext<LineupperDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+logger.Debug("Start aplikacji Lineupper.WebAPI");
 
-// Swagger (OpenAPI)
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-builder.Services.AddControllers();
-
-// Serwisy
-builder.Services.AddScoped<IBandService, BandService>();
-builder.Services.AddScoped<IFestivalService, FestivalService>();
-builder.Services.AddScoped<IVoteService, VoteService>();
-builder.Services.AddScoped<IScheduleItemService, ScheduleItemService>();
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IParticipantService, ParticipantService>();
-builder.Services.AddScoped<IOrganizerService, OrganizerService>();
-
-// Repozytoria
-builder.Services.AddScoped<IBandRepository, BandRepository>();
-builder.Services.AddScoped<IFestivalRepository, FestivalRepository>();
-builder.Services.AddScoped<IVoteRepository, VoteRepository>();
-builder.Services.AddScoped<IScheduleItemRepository, ScheduleItemRepository>();
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IParticipantRepository, ParticipantRepository>();
-builder.Services.AddScoped<IOrganizerRepository, OrganizerRepository>();
-
-// UnitOfWork
-builder.Services.AddScoped<IUnitOfWork, LineupperUnitOfWork>();
-
-// AutoMapper
-builder.Services.AddAutoMapper(typeof(MappingProfile));
-
-builder.Services.AddCors(options =>
+try
 {
-    options.AddPolicy("AllowWasm",
-        builder => builder
-            .WithOrigins("https://localhost:7297") 
-            .AllowAnyHeader()
-            .AllowAnyMethod());
-});
+    var builder = WebApplication.CreateBuilder(args);
 
+    // Konfiguracja NLog
+    builder.Logging.ClearProviders();
+    builder.Host.UseNLog();
 
+    // Konfiguracja SQLite z appsettings.json
+    builder.Services.AddDbContext<LineupperDbContext>(options =>
+        options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-var app = builder.Build();
-app.UseCors("AllowWasm");
+    // Swagger
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen();
 
+    builder.Services.AddControllers();
 
-using (var scope = app.Services.CreateScope())
-{
-    var dbContext = scope.ServiceProvider.GetRequiredService<LineupperDbContext>();
-    DataSeeder.SeedDatabase(dbContext); 
+    // Serwisy
+    builder.Services.AddScoped<IBandService, BandService>();
+    builder.Services.AddScoped<IFestivalService, FestivalService>();
+    builder.Services.AddScoped<IVoteService, VoteService>();
+    builder.Services.AddScoped<IScheduleItemService, ScheduleItemService>();
+    builder.Services.AddScoped<IUserService, UserService>();
+    builder.Services.AddScoped<IParticipantService, ParticipantService>();
+    builder.Services.AddScoped<IOrganizerService, OrganizerService>();
+
+    // Repozytoria
+    builder.Services.AddScoped<IBandRepository, BandRepository>();
+    builder.Services.AddScoped<IFestivalRepository, FestivalRepository>();
+    builder.Services.AddScoped<IVoteRepository, VoteRepository>();
+    builder.Services.AddScoped<IScheduleItemRepository, ScheduleItemRepository>();
+    builder.Services.AddScoped<IUserRepository, UserRepository>();
+    builder.Services.AddScoped<IParticipantRepository, ParticipantRepository>();
+    builder.Services.AddScoped<IOrganizerRepository, OrganizerRepository>();
+
+    // UnitOfWork
+    builder.Services.AddScoped<IUnitOfWork, LineupperUnitOfWork>();
+
+    // AutoMapper
+    builder.Services.AddAutoMapper(typeof(MappingProfile));
+
+    // CORS
+    builder.Services.AddCors(options =>
+    {
+        options.AddPolicy("AllowWasm",
+            builder => builder
+                .WithOrigins("https://localhost:7297")
+                .AllowAnyHeader()
+                .AllowAnyMethod());
+    });
+
+    var app = builder.Build();
+    app.UseCors("AllowWasm");
+
+    // Seeding bazy danych
+    using (var scope = app.Services.CreateScope())
+    {
+        var dbContext = scope.ServiceProvider.GetRequiredService<LineupperDbContext>();
+        DataSeeder.SeedDatabase(dbContext);
+    }
+
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseSwagger();
+        app.UseSwaggerUI();
+    }
+
+    app.UseMiddleware<Lineupper.WebAPI.Middleware.ExceptionMiddleware>();
+    app.UseHttpsRedirection();
+
+    // Możesz tu dodać middleware do logowania błędów
+    // app.UseMiddleware<ExceptionMiddleware>();
+
+    app.MapControllers();
+
+    app.Run();
 }
-
-// Środowisko developerskie – Swagger
-if (app.Environment.IsDevelopment())
+catch (Exception ex)
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    logger.Error(ex, "Błąd krytyczny przy uruchamianiu aplikacji");
+    throw;
 }
-
-app.UseHttpsRedirection();
-
-app.MapControllers();
-
-// Middleware do obsługi np. błędów lub logowania możesz dodać później
-// app.UseMiddleware<ErrorHandlingMiddleware>();
-
-
-
-app.Run();
+finally
+{
+    NLog.LogManager.Shutdown();
+}
