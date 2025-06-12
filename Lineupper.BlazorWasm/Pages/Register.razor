@@ -4,77 +4,126 @@
 @inject HttpClient Http
 @inject NavigationManager Navigation
 
-<h3>Rejestracja</h3>
+<PageTitle>Rejestracja</PageTitle>
 
-<EditForm Model="@registerModel" OnValidSubmit="@HandleValidSubmit">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
+<style>
+    body {
+        background: linear-gradient(to bottom right, #f8f9fa, #e9ecef);
+        min-height: 100vh;
+    }
+</style>
 
-    <div class="mb-3">
-        <label>Nazwa użytkownika:</label>
-        <input type="text" class="form-control" @bind="registerModel.Username" />
-        <ValidationMessage For="@(() => registerModel.Username)" />
-    </div>
+<div class="d-flex flex-column justify-content-center align-items-center text-center px-3" style="min-height: 100vh;">
 
-    <div class="mb-3">
-        <label>Email:</label>
-        <input type="email" class="form-control" @bind="registerModel.Email" />
-        <ValidationMessage For="@(() => registerModel.Email)" />
-    </div>
+    @if (string.IsNullOrEmpty(selectedRole))
+    {
+        <!-- Wybór roli -->
+        <div class="container">
+            <h2 class="mb-5 fw-bold text-primary fs-2">Zarejestruj się jako:</h2>
 
-    <div class="mb-3">
-        <label>Hasło:</label>
-        <input type="password" class="form-control" @bind="registerModel.Password" />
-        <ValidationMessage For="@(() => registerModel.Password)" />
-    </div>
+            <div class="row justify-content-center g-5">
+                <div class="col-lg-5">
+                    <div class="card shadow-lg h-100 border-0">
+                        <div class="card-body text-center p-5">
+                            <h4 class="card-title fw-semibold mb-3">Organizator</h4>
+                            <p class="card-text fs-5">
+                                Twórz festiwale, zarządzaj line-upem i analizuj głosy uczestników.
+                            </p>
+                            <button class="btn btn-primary btn-lg w-100 mt-4" @onclick="@(() => SelectRole("Organizer"))">
+                                Wybierz organizatora
+                            </button>
+                        </div>
+                    </div>
+                </div>
 
-    <div class="mb-3">
-        <label>Rola:</label>
-        <select class="form-select" @bind="registerModel.Role">
-            <option value="">-- wybierz rolę --</option>
-            <option value="Organizer">Organizator</option>
-            <option value="Participant">Uczestnik</option>
-        </select>
-        <ValidationMessage For="@(() => registerModel.Role)" />
-    </div>
+                <div class="col-lg-5">
+                    <div class="card shadow-lg h-100 border-0">
+                        <div class="card-body text-center p-5">
+                            <h4 class="card-title fw-semibold mb-3">Uczestnik</h4>
+                            <p class="card-text fs-5">
+                                Głosuj na zespoły, wybieraj harmonogram i stwórz idealny festiwal.
+                            </p>
+                            <button class="btn btn-primary btn-lg w-100 mt-4" @onclick="@(() => SelectRole("Participant"))">
+                                Wybierz uczestnika
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <!-- Formularz rejestracji -->
+        <div class="container bg-white shadow-lg rounded p-5" style="max-width: 600px;">
+            <h3 class="text-primary mb-4 text-center">Rejestracja – @((selectedRole == "Organizer") ? "Organizator" : "Uczestnik")</h3>
 
-    <button type="submit" class="btn btn-primary">Zarejestruj</button>
-</EditForm>
+            <EditForm Model="@registerModel" OnValidSubmit="@HandleValidSubmit">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
 
-@if (submitted)
-{
-    <div class="alert alert-success mt-3">
-        Zarejestrowano: <strong>@registerModel.Email</strong> jako <strong>@registerModel.Role</strong>
-    </div>
-}
+                <div class="mb-3 text-start">
+                    <label class="form-label">Nazwa użytkownika:</label>
+                    <input type="text" class="form-control" @bind="registerModel.Username" />
+                    <ValidationMessage For="@(() => registerModel.Username)" />
+                </div>
+
+                <div class="mb-3 text-start">
+                    <label class="form-label">Email:</label>
+                    <input type="email" class="form-control" @bind="registerModel.Email" />
+                    <ValidationMessage For="@(() => registerModel.Email)" />
+                </div>
+
+                <div class="mb-3 text-start">
+                    <label class="form-label">Hasło:</label>
+                    <input type="password" class="form-control" @bind="registerModel.Password" />
+                    <ValidationMessage For="@(() => registerModel.Password)" />
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-lg w-100">Zarejestruj się</button>
+                <button type="button" class="btn btn-link mt-3 w-100" @onclick="() => selectedRole = null">← Wróć do wyboru roli</button>
+            </EditForm>
+
+            @if (submitted)
+            {
+                <div class="alert alert-success mt-3">
+                    Zarejestrowano: <strong>@registerModel.Email</strong> jako <strong>@selectedRole</strong>
+                </div>
+            }
+        </div>
+    }
+</div>
 
 @code {
-    private RegisterModel registerModel = new()
-    {
-        Username = "testuser",
-        Email = "example@email.com",
-        Password = "password123",
-        Role = "Participant"
-    };
-
+    private string? selectedRole = null;
     private bool submitted = false;
+
+    private RegisterModel registerModel = new();
+
+    private void SelectRole(string role)
+    {
+        selectedRole = role;
+        registerModel = new RegisterModel
+            {
+                Role = role
+            };
+    }
 
     private async void HandleValidSubmit()
     {
         var registerUserDto = new RegisterUserDto
-        {
-            Email = registerModel.Email,
-            Username = registerModel.Username,
-            Password = registerModel.Password,
-            UserType = registerModel.Role == "Organizer" ? SharedKernel.Enums.UserType.Organizer : SharedKernel.Enums.UserType.Participant
-        };
-        
-        var response = await Http.PostAsJsonAsync("api/User/Create", registerUserDto); 
+            {
+                Email = registerModel.Email,
+                Username = registerModel.Username,
+                Password = registerModel.Password,
+                UserType = selectedRole == "Organizer" ? SharedKernel.Enums.UserType.Organizer : SharedKernel.Enums.UserType.Participant
+            };
+
+        var response = await Http.PostAsJsonAsync("api/User/Create", registerUserDto);
 
         if (response.IsSuccessStatusCode)
         {
             submitted = true;
-            Console.WriteLine($"Zarejestrowano: {registerModel.Email}, Rola: {registerModel.Role}");
             Navigation.NavigateTo("/", forceLoad: true);
         }
         else
@@ -97,7 +146,7 @@
         [MinLength(6, ErrorMessage = "Hasło musi mieć co najmniej 6 znaków")]
         public string Password { get; set; }
 
-        [Required(ErrorMessage = "Rola jest wymagana")]
+        [Required]
         public string Role { get; set; }
     }
 }

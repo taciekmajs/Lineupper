@@ -1,28 +1,45 @@
 ﻿@page "/"
-
 <PageTitle>Lineupper</PageTitle>
 
-<div class="text-center mt-5">
-    <h1 class="display-4">Lineupper</h1>
-    <p class="lead mt-3">
-        Lineupper to platforma dla organizatorów i uczestników festiwali muzycznych.
-    </p>
-</div>
+<style>
+    body {
+        background: linear-gradient(to bottom right, #f8f9fa, #e9ecef);
+        min-height: 100vh;
+    }
+</style>
 
-<div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <p>
-                Organizatorzy mogą tworzyć własne festiwale, dodawać zespoły i ustalać terminy koncertów.
-                Gdy festiwal jest gotowy, uczestnicy mogą głosować na zespoły, które najbardziej chcą zobaczyć –
-                a na podstawie tych głosów generowany jest harmonogram koncertów.
-            </p>
-            <p>
-                Dzięki temu każdy festiwal jest szyty na miarę publiczności, a zespoły grają wtedy, kiedy najbardziej pasuje uczestnikom.
-            </p>
-            <p class="fw-bold mt-4">
-                Dołącz do Lineupper i pomóż stworzyć najlepszy line-up!
-            </p>
+<div class="d-flex flex-column justify-content-center align-items-center text-center px-3" style="min-height: 100vh;">
+    <div class="bg-white shadow rounded p-5 px-5 py-5" style="max-width: 960px; width: 100%;">
+        <h1 class="display-3 fw-bold text-primary">Lineupper</h1>
+        <p class="lead mt-4 text-secondary">
+            Lineupper to platforma dla organizatorów i uczestników festiwali muzycznych.
+        </p>
+
+        <p class="text-start mt-4 fs-5">
+            Organizatorzy mogą tworzyć własne festiwale, dodawać zespoły i ustalać terminy koncertów.
+            Gdy festiwal jest gotowy, uczestnicy mogą głosować na zespoły, które najbardziej chcą zobaczyć –
+            a na podstawie tych głosów generowany jest harmonogram koncertów.
+        </p>
+
+        <p class="text-start fs-5">
+            Dzięki temu każdy festiwal jest szyty na miarę publiczności, a zespoły grają wtedy, kiedy najbardziej pasuje uczestnikom.
+        </p>
+
+        <p class="fw-bold text-start mt-4 fs-5">
+            Dołącz do Lineupper i pomóż stworzyć najlepszy line-up!
+        </p>
+
+        <div class="d-flex flex-column align-items-center mt-5 gap-3">
+            <a class="btn btn-primary btn-lg px-5" href="/login">
+                <i class="bi bi-box-arrow-in-right me-2"></i>Zaloguj się
+            </a>
+
+            <div class="mt-2">
+                <p class="mb-2">Nie masz konta?</p>
+                <a class="btn btn-outline-secondary btn-lg px-5" href="/register">
+                    <i class="bi bi-person-plus me-2"></i>Załóż konto
+                </a>
+            </div>
         </div>
     </div>
 </div>
