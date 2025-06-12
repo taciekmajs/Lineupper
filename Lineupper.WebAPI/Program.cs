@@ -21,29 +21,29 @@ try
 {
     var builder = WebApplication.CreateBuilder(args);
 
-    // ⚙️ NLog
+    //  NLog
     builder.Logging.ClearProviders();
     builder.Host.UseNLog();
 
-    // 🗄️ SQLite
+    //  SQLite
     builder.Services.AddDbContext<LineupperDbContext>(options =>
         options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-    // 📄 Swagger (OpenAPI)
+    // Swagger (OpenAPI)
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
 
-    // 📦 Kontrolery
+    //  Kontrolery
     builder.Services.AddControllers();
 
-    // 🧪 FluentValidation
+    //  FluentValidation
     builder.Services.AddFluentValidationAutoValidation();
     builder.Services.AddValidatorsFromAssemblyContaining<RegisterUserDtoValidator>(); // rejestruje wszystkie walidatory z Application
 
-    // 🔄 AutoMapper
+    //  AutoMapper
     builder.Services.AddAutoMapper(typeof(MappingProfile));
 
-    // 🔐 Dependency Injection: Serwisy
+    //  Dependency Injection: Serwisy
     builder.Services.AddScoped<IBandService, BandService>();
     builder.Services.AddScoped<IFestivalService, FestivalService>();
     builder.Services.AddScoped<IVoteService, VoteService>();
@@ -52,7 +52,7 @@ try
     builder.Services.AddScoped<IParticipantService, ParticipantService>();
     builder.Services.AddScoped<IOrganizerService, OrganizerService>();
 
-    // 📥 Dependency Injection: Repozytoria
+    //  Dependency Injection: Repozytoria
     builder.Services.AddScoped<IBandRepository, BandRepository>();
     builder.Services.AddScoped<IFestivalRepository, FestivalRepository>();
     builder.Services.AddScoped<IVoteRepository, VoteRepository>();
@@ -61,10 +61,10 @@ try
     builder.Services.AddScoped<IParticipantRepository, ParticipantRepository>();
     builder.Services.AddScoped<IOrganizerRepository, OrganizerRepository>();
 
-    // 🔄 Unit of Work
+    // Unit of Work
     builder.Services.AddScoped<IUnitOfWork, LineupperUnitOfWork>();
 
-    // 🌐 CORS
+    // CORS
     builder.Services.AddCors(options =>
     {
         options.AddPolicy("AllowWasm", policy =>
@@ -79,21 +79,21 @@ try
 
     app.UseCors("AllowWasm");
 
-    // 🧪 Seeding bazy danych
+    // Seeding bazy danych
     using (var scope = app.Services.CreateScope())
     {
         var dbContext = scope.ServiceProvider.GetRequiredService<LineupperDbContext>();
         DataSeeder.SeedDatabase(dbContext);
     }
 
-    // 🧪 Swagger (tylko w dev)
+    // Swagger (tylko w dev)
     if (app.Environment.IsDevelopment())
     {
         app.UseSwagger();
         app.UseSwaggerUI();
     }
 
-    // ⚠️ Middleware do obsługi wyjątków
+    // Middleware do obsługi wyjątków
     app.UseMiddleware<Lineupper.WebAPI.Middleware.ExceptionMiddleware>();
 
     app.UseHttpsRedirection();
