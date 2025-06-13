@@ -3,6 +3,7 @@
 @using Lineupper.Application.Dto
 @inject HttpClient Http
 @inject NavigationManager Navigation
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
 
 <PageTitle>Rejestracja</PageTitle>
 
@@ -112,19 +113,33 @@
     private async void HandleValidSubmit()
     {
         var registerUserDto = new RegisterUserDto
-            {
-                Email = registerModel.Email,
-                Username = registerModel.Username,
-                Password = registerModel.Password,
-                UserType = selectedRole == "Organizer" ? SharedKernel.Enums.UserType.Organizer : SharedKernel.Enums.UserType.Participant
-            };
+        {
+            Email = registerModel.Email,
+            Username = registerModel.Username,
+            Password = registerModel.Password,
+            UserType = selectedRole == "Organizer" ? SharedKernel.Enums.UserType.Organizer : SharedKernel.Enums.UserType.Participant
+        };
 
         var response = await Http.PostAsJsonAsync("api/User/Create", registerUserDto);
 
         if (response.IsSuccessStatusCode)
         {
-            submitted = true;
-            Navigation.NavigateTo("/", forceLoad: true);
+            var auth = await response.Content.ReadFromJsonAsync<AuthUserDto>();
+
+            if (auth is not null)
+            {
+                await LocalStorage.SetItemAsync("user", auth);
+
+                // przekierowanie zależnie od roli z odświeżeniem
+                if (auth.UserType == SharedKernel.Enums.UserType.Organizer)
+                {
+                    Navigation.NavigateTo("/dashboard-organizer", forceLoad: true);
+                }
+                else
+                {
+                    Navigation.NavigateTo("/dashboard-participant", forceLoad: true);
+                }
+            }
         }
         else
         {

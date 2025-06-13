@@ -74,14 +74,14 @@
                 await LocalStorage.SetItemAsync("user", auth);
                 loginSuccess = true;
 
-                // ⬇️ Przekierowanie zależnie od roli
+                // ⬇️ Przekierowanie z wymuszonym odświeżeniem
                 if (auth.UserType == SharedKernel.Enums.UserType.Organizer)
                 {
-                    Navigation.NavigateTo("/dashboard-organizer");
+                    Navigation.NavigateTo("/dashboard-organizer", forceLoad: true);
                 }
                 else
                 {
-                    Navigation.NavigateTo("/dashboard-participant");
+                    Navigation.NavigateTo("/dashboard-participant", forceLoad: true);
                 }
             }
         }

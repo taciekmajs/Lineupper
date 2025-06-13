@@ -1,0 +1,40 @@
+﻿@using Blazored.LocalStorage
+@using Lineupper.Application.Dto
+@inject ILocalStorageService LocalStorage
+@inject NavigationManager Navigation
+
+<div class="dropdown">
+    <button class="btn btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="bi bi-person-circle fs-4 text-dark"></i>
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end">
+        @if (user == null)
+        {
+            <li><a class="dropdown-item" href="login">Zaloguj się</a></li>
+            <li><a class="dropdown-item" href="register">Zarejestruj się</a></li>
+        }
+        else
+        {
+            <li><button class="dropdown-item" @onclick="Logout">Wyloguj się</button></li>
+        }
+    </ul>
+</div>
+
+@code {
+    private AuthUserDto? user;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (await LocalStorage.ContainKeyAsync("user"))
+        {
+            user = await LocalStorage.GetItemAsync<AuthUserDto>("user");
+        }
+    }
+
+    private async Task Logout()
+    {
+        await LocalStorage.RemoveItemAsync("user");
+        user = null;
+        Navigation.NavigateTo("/login", forceLoad: true);
+    }
+}
