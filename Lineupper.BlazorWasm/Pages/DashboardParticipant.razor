@@ -1,0 +1,86 @@
+﻿@page "/dashboard-participant"
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+
+@using Lineupper.Application.Dto
+@using Lineupper.SharedKernel.Enums
+
+<style>
+    body {
+        background: linear-gradient(to bottom right, #f8f9fa, #e9ecef);
+        min-height: 100vh;
+    }
+</style>
+
+
+
+<div class="d-flex flex-column justify-content-center align-items-center text-center px-3" style="min-height: 100vh;">
+    <div class="container bg-white shadow rounded p-5" style="max-width: 900px;">
+        <h2 class="text-primary fw-bold mb-4 text-start">Cześć, @user?.Username!</h2>
+
+        <div class="d-flex justify-content-start mb-4">
+            <button class="btn btn-outline-primary" @onclick="@(() => Navigation.NavigateTo("/festivals"))">
+                🔍 Przeglądaj wszystkie festiwale
+            </button>
+        </div>
+
+        <div class="row g-4">
+            <!-- Twoje festiwale -->
+            <div class="col-md-6">
+                <div class="card shadow-sm h-100 border-0">
+                    <div class="card-body text-start">
+                        <h5 class="card-title fw-bold mb-3">🎟️ Twoje festiwale</h5>
+
+                        @if (userFestivals == null)
+                        {
+                            <p>Ładowanie...</p>
+                        }
+                        else if (!userFestivals.Any())
+                        {
+                            <p class="text-muted">Nie bierzesz udziału w żadnym festiwalu.</p>
+                        }
+                        else
+                        {
+                            <ul class="list-group list-group-flush">
+                                @foreach (var fest in userFestivals)
+                                {
+                                    <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                                        <span><strong>@fest.Name</strong> – @fest.Location</span>
+                                        <a class="btn btn-sm btn-primary" href="/festivaldetails/@fest.Id">Zobacz</a>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Twoje głosy (placeholder) -->
+            <div class="col-md-6">
+                <div class="card shadow-sm h-100 border-0">
+                    <div class="card-body text-start">
+                        <h5 class="card-title fw-bold mb-3">🗳️ Twoje głosy (wkrótce)</h5>
+                        <p class="text-muted">W przyszłości zobaczysz tutaj, na które zespoły głosowałeś.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<FestivalDto>? allFestivals;
+    private List<FestivalDto>? userFestivals;
+    private AuthUserDto? user;
+
+    protected override async Task OnInitializedAsync()
+    {
+        user = await LocalStorage.GetItemAsync<AuthUserDto>("user");
+        allFestivals = await Http.GetFromJsonAsync<List<FestivalDto>>("api/Festival");
+
+        // Tymczasowa logika: pokaż wszystkie jako "Twoje"
+        // W przyszłości: filtrować na podstawie głosowania użytkownika
+        userFestivals = allFestivals?.Where(f => f.Status == FestivalStatus.BeforeVoting || f.Status == FestivalStatus.AfterVoting).Take(3).ToList();
+    }
+}

@@ -3,63 +3,85 @@
 @using Lineupper.Application.Dto
 @inject HttpClient Http
 
-<h3>Lista festiwali</h3>
+<PageTitle>Lista festiwali</PageTitle>
 
-<div class="row mb-3">
-    <div class="col-md-4">
-        <label>Nazwa festiwalu:</label>
-        <input type="text" class="form-control" @bind="searchName" placeholder="np. Rockowy Szał" />
-    </div>
-    <div class="col-md-4">
-        <label>Lokalizacja:</label>
-        <input type="text" class="form-control" @bind="searchLocation" placeholder="np. Kraków" />
-    </div>
-    <div class="col-md-4">
-        <label>Status:</label>
-        <select class="form-select" @bind="searchStatus">
-            <option value="">-- wszystkie --</option>
-            <option value="Przed głosowaniem">Przed głosowaniem</option>
-            <option value="Po głosowaniu">Po głosowaniu</option>
-        </select>
+<style>
+    body {
+        background: linear-gradient(to bottom right, #f8f9fa, #e9ecef);
+        min-height: 100vh;
+    }
+</style>
+
+<div class="d-flex flex-column align-items-center px-3 py-4">
+    <div class="container">
+        <div class="card shadow mb-4">
+            <div class="card-body">
+                <h3 class="text-primary mb-4">Filtruj festiwale</h3>
+
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Nazwa festiwalu:</label>
+                        <input type="text" class="form-control" @bind="searchName" placeholder="np. Rockowy Szał" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Lokalizacja:</label>
+                        <input type="text" class="form-control" @bind="searchLocation" placeholder="np. Kraków" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Status:</label>
+                        <select class="form-select" @bind="searchStatus">
+                            <option value="">-- wszystkie --</option>
+                            <option value="Przed głosowaniem">Przed głosowaniem</option>
+                            <option value="Po głosowaniu">Po głosowaniu</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @if (FilteredFestivals is null)
+        {
+            <div class="alert alert-info text-center">Ładowanie danych...</div>
+        }
+        else if (!FilteredFestivals.Any())
+        {
+            <div class="alert alert-warning text-center">Brak festiwali spełniających kryteria wyszukiwania.</div>
+        }
+        else
+        {
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h4 class="mb-3">Znalezione festiwale:</h4>
+                    <table class="table table-striped align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Nazwa</th>
+                                <th>Data</th>
+                                <th>Lokalizacja</th>
+                                <th>Status</th>
+                                <th>Akcja</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var fest in FilteredFestivals)
+                            {
+                                <tr>
+                                    <td>@fest.Name</td>
+                                    <td>@fest.StartDate.ToShortDateString()</td>
+                                    <td>@fest.Location</td>
+                                    <td>@fest.Status</td>
+                                    <td>
+                                        <a href="/festivaldetails/@fest.Id" class="btn btn-sm btn-primary">Szczegóły</a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
     </div>
 </div>
-
-@if (FilteredFestivals is null)
-{
-    <p>Ładowanie danych...</p>
-}
-else if (!FilteredFestivals.Any())
-{
-    <p>Brak festiwali spełniających kryteria wyszukiwania.</p>
-}
-else
-{
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Nazwa</th>
-                <th>Data</th>
-                <th>Lokalizacja</th>
-                <th>Status</th>
-                <th>Akcja</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var fest in FilteredFestivals)
-            {
-                <tr>
-                    <td>@fest.Name</td>
-                    <td>@fest.StartDate.ToShortDateString()</td>
-                    <td>@fest.Location</td>
-                    <td>@fest.Status</td>
-                    <td>
-                        <a href="/festivaldetails/@fest.Id" class="btn btn-sm btn-primary">Szczegóły</a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
 
 @code {
     private string searchName = "";

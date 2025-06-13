@@ -7,62 +7,94 @@
 @using Lineupper.Application.Dto
 @using Lineupper.SharedKernel.Enums
 
-<h3>Utwórz festiwal</h3>
+<PageTitle>Utwórz festiwal</PageTitle>
 
-<EditForm Model="@festivalModel" OnValidSubmit="HandleCreateFestival" @onsubmit:preventDefault>
-    <DataAnnotationsValidator />
-    <ValidationSummary />
-
-    <div class="mb-3">
-        <label>Nazwa:</label>
-        <InputText class="form-control" @bind-Value="festivalModel.Name" />
-        <ValidationMessage For="@(() => festivalModel.Name)" />
-    </div>
-    <div class="mb-3">
-        <label>Lokalizacja:</label>
-        <InputText class="form-control" @bind-Value="festivalModel.Location" />
-        <ValidationMessage For="@(() => festivalModel.Location)" />
-    </div>
-    <div class="mb-3">
-        <label>Data rozpoczęcia:</label>
-        <InputDate class="form-control" @bind-Value="festivalModel.StartDate" />
-        <ValidationMessage For="@(() => festivalModel.StartDate)" />
-    </div>
-    <div class="mb-3">
-        <label>Data zakończenia:</label>
-        <InputDate class="form-control" @bind-Value="festivalModel.EndDate" />
-        <ValidationMessage For="@(() => festivalModel.EndDate)" />
-    </div>
-    <div class="mb-3">
-        <label>Godzina rozpoczęcia koncertów:</label>
-        <InputText type="time" class="form-control" @bind-Value="festivalModel.ConcertStartTime" />
-    </div>
-    <div class="mb-3">
-        <label>Godzina zakończenia koncertów:</label>
-        <InputText type="time" class="form-control" @bind-Value="festivalModel.ConcertEndTime" />
-    </div>
-
-    <h5>Zespoły:</h5>
-    @if (festivalModel.Bands.Any())
-    {
-        <ul class="list-group mb-3">
-            @foreach (var band in festivalModel.Bands)
-            {
-                <li class="list-group-item d-flex justify-content-between">
-                    <span>@band.Name (@band.Genre), set: @band.SetDurationMinutes min</span>
-                    <button class="btn btn-sm btn-danger" @onclick="() => RemoveBand(band)">Usuń</button>
-                </li>
-            }
-        </ul>
+<style>
+    body {
+        background: linear-gradient(to bottom right, #f8f9fa, #e9ecef);
+        min-height: 100vh;
     }
-    <button type="button" class="btn btn-secondary mb-3" @onclick="OpenModal">Dodaj zespół</button>
+</style>
 
-    <button type="submit" class="btn btn-success">Utwórz festiwal</button>
-</EditForm>
+<div class="d-flex justify-content-center align-items-center px-3 py-4" style="min-height: 100vh;">
+    <div class="container bg-white shadow-lg rounded p-5" style="max-width: 800px;">
+        <h2 class="text-primary mb-4">Utwórz nowy festiwal</h2>
+
+        <EditForm Model="@festivalModel" OnValidSubmit="HandleCreateFestival">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Nazwa:</label>
+                    <InputText class="form-control" @bind-Value="festivalModel.Name" />
+                    <ValidationMessage For="@(() => festivalModel.Name)" />
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Lokalizacja:</label>
+                    <InputText class="form-control" @bind-Value="festivalModel.Location" />
+                    <ValidationMessage For="@(() => festivalModel.Location)" />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Data rozpoczęcia:</label>
+                    <InputDate class="form-control" @bind-Value="festivalModel.StartDate" />
+                    <ValidationMessage For="@(() => festivalModel.StartDate)" />
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Data zakończenia:</label>
+                    <InputDate class="form-control" @bind-Value="festivalModel.EndDate" />
+                    <ValidationMessage For="@(() => festivalModel.EndDate)" />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Godzina rozpoczęcia koncertów:</label>
+                    <InputText type="time" class="form-control" @bind-Value="festivalModel.ConcertStartTime" />
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Godzina zakończenia koncertów:</label>
+                    <InputText type="time" class="form-control" @bind-Value="festivalModel.ConcertEndTime" />
+                </div>
+            </div>
+
+            <h5 class="mt-4 mb-3">Zespoły:</h5>
+
+            @if (festivalModel.Bands.Any())
+            {
+                <ul class="list-group mb-3">
+                    @foreach (var band in festivalModel.Bands)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>@band.Name (@band.Genre), set: @band.SetDurationMinutes min</span>
+                            <button class="btn btn-sm btn-outline-danger" @onclick="() => RemoveBand(band)">Usuń</button>
+                        </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p class="text-muted mb-3">Nie dodano jeszcze żadnych zespołów.</p>
+            }
+
+            <button type="button" class="btn btn-outline-secondary mb-4" @onclick="OpenModal">+ Dodaj zespół</button>
+
+            <div class="d-grid">
+                <button type="submit" class="btn btn-success btn-lg">Utwórz festiwal</button>
+            </div>
+        </EditForm>
+    </div>
+</div>
 
 @if (showAddBandModal)
 {
-    <div class="modal fade show d-block" tabindex="-1">
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -81,15 +113,14 @@
             </div>
         </div>
     </div>
-    <div class="modal-backdrop fade show"></div>
 }
 
 @code {
     private FestivalCreateDto festivalModel = new()
-    {
-        StartDate = DateTime.Today,
-        EndDate = DateTime.Today.AddDays(1)
-    };
+        {
+            StartDate = DateTime.Today,
+            EndDate = DateTime.Today.AddDays(1)
+        };
 
     private BandCreateDto newBand = new();
     private bool showAddBandModal = false;
@@ -125,11 +156,11 @@
         }
 
         festivalModel.Bands.Add(new BandCreateDto
-        {
-            Name = newBand.Name,
-            Genre = newBand.Genre,
-            SetDurationMinutes = newBand.SetDurationMinutes
-        });
+            {
+                Name = newBand.Name,
+                Genre = newBand.Genre,
+                SetDurationMinutes = newBand.SetDurationMinutes
+            });
 
         CloseModal();
     }
@@ -145,26 +176,26 @@
         foreach (var b in festivalModel.Bands)
         {
             bands.Add(new BandDto
-            {
-                Name = b.Name,
-                Genre = b.Genre,
-                SetDuration = b.SetDurationMinutes
-            });
+                {
+                    Name = b.Name,
+                    Genre = b.Genre,
+                    SetDuration = b.SetDurationMinutes
+                });
         }
 
         var festivalDto = new FestivalDto()
-        {
-            Id = Guid.NewGuid(),
-            Name = festivalModel.Name,
-            Location = festivalModel.Location,
-            StartDate = festivalModel.StartDate,
-            EndDate = festivalModel.EndDate,
-            Status = FestivalStatus.BeforeVoting,
-            OrganizerId = festivalModel.OrganizerId,
-            Bands = bands,
-            ConcertStartTime = TimeSpan.Parse(festivalModel.ConcertStartTime),
-            ConcertEndTime = TimeSpan.Parse(festivalModel.ConcertEndTime)
-        };
+            {
+                Id = Guid.NewGuid(),
+                Name = festivalModel.Name,
+                Location = festivalModel.Location,
+                StartDate = festivalModel.StartDate,
+                EndDate = festivalModel.EndDate,
+                Status = FestivalStatus.BeforeVoting,
+                OrganizerId = festivalModel.OrganizerId,
+                Bands = bands,
+                ConcertStartTime = TimeSpan.Parse(festivalModel.ConcertStartTime),
+                ConcertEndTime = TimeSpan.Parse(festivalModel.ConcertEndTime)
+            };
 
         var response = await Http.PostAsJsonAsync("api/Festival/Create", festivalDto);
         if (response.IsSuccessStatusCode)

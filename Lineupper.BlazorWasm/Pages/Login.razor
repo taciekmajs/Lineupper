@@ -73,7 +73,16 @@
             {
                 await LocalStorage.SetItemAsync("user", auth);
                 loginSuccess = true;
-                Navigation.NavigateTo("/", forceLoad: true);
+
+                // ⬇️ Przekierowanie zależnie od roli
+                if (auth.UserType == SharedKernel.Enums.UserType.Organizer)
+                {
+                    Navigation.NavigateTo("/dashboard-organizer");
+                }
+                else
+                {
+                    Navigation.NavigateTo("/dashboard-participant");
+                }
             }
         }
         else
@@ -83,6 +92,7 @@
             Console.WriteLine("Błąd logowania: " + error);
         }
     }
+
 
     public class LoginModel
     {

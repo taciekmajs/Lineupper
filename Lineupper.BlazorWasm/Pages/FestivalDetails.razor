@@ -4,90 +4,103 @@
 @inject HttpClient Http
 @inject Blazored.LocalStorage.ILocalStorageService LocalStorage
 
-<h3>Szczegóły festiwalu</h3>
+<PageTitle>Szczegóły festiwalu</PageTitle>
 
-@if (festival == null)
-{
-    <p>Ładowanie...</p>
-}
-else
-{
-    <div class="card p-4 shadow-sm">
-        <h4>@festival.Name</h4>
-        <p><strong>Data:</strong> @festival.StartDate.ToShortDateString() – @festival.EndDate.ToShortDateString()</p>
-        <p><strong>Godziny koncertów:</strong> @festival.ConcertStartTime - @festival.ConcertEndTime</p>
-        <p><strong>Lokalizacja:</strong> @festival.Location</p>
-        <p><strong>Status:</strong> @festival.Status</p>
+<style>
+    body {
+        background: linear-gradient(to bottom right, #f8f9fa, #e9ecef);
+        min-height: 100vh;
+    }
+</style>
 
-        <h5 class="mt-4">Zespoły:</h5>
-        @if (festival.Bands.Any())
-        {
-            <ul class="list-group">
-                @foreach (var band in festival.Bands)
-                {
-                    <li class="list-group-item">
-                        <strong>@band.Name</strong> (@band.Genre), set: @band.SetDuration min
-                    </li>
-                }
-            </ul>
-        }
-        else
-        {
-            <p>Brak przypisanych zespołów.</p>
-        }
-
-        @if (user is not null && user.Id == festival.OrganizerId)
-        {
-            @if (festival.Status == FestivalStatus.BeforeVoting)
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            @if (festival == null)
             {
-                <div class="mt-3">
-                    <button class="btn btn-warning">Wygeneruj harmonogram</button>
-                </div>
+                <div class="alert alert-info text-center">Ładowanie...</div>
             }
-
-            <div class="mt-4">
-                <h5>Harmonogram (placeholder)</h5>
-                <p>Tu będzie wyświetlony harmonogram po wygenerowaniu.</p>
-            </div>
-        }
-        else if (user is not null && user.Id != festival.OrganizerId)
-        {
-            @if (festival.Status == FestivalStatus.BeforeVoting)
+            else
             {
-                <div class="mt-4">
-                    <h5>Głosowanie na zespoły</h5>
-                    <EditForm Model="@votes" OnValidSubmit="HandleVoteSubmit">
-                        <DataAnnotationsValidator />
-                        <ValidationSummary />
+                <div class="card shadow-sm p-4">
+                    <h3 class="text-primary mb-3">@festival.Name</h3>
+                    <p><strong>Data:</strong> @festival.StartDate:dd.MM.yyyy – @festival.EndDate:dd.MM.yyyy</p>
+                    <p><strong>Godziny koncertów:</strong> @festival.ConcertStartTime - @festival.ConcertEndTime</p>
+                    <p><strong>Lokalizacja:</strong> @festival.Location</p>
+                    <p><strong>Status:</strong> @festival.Status</p>
 
-                        @foreach (var vote in votes)
+                    <h5 class="mt-4">Zespoły:</h5>
+                    @if (festival.Bands.Any())
+                    {
+                        <ul class="list-group">
+                            @foreach (var band in festival.Bands)
+                            {
+                                <li class="list-group-item">
+                                    <strong>@band.Name</strong> (@band.Genre), set: @band.SetDuration min
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning mt-2">Brak przypisanych zespołów.</div>
+                    }
+
+                    @if (user is not null && user.Id == festival.OrganizerId)
+                    {
+                        @if (festival.Status == FestivalStatus.BeforeVoting)
                         {
-                            <div class="mb-3">
-                                <label>@vote.BandName:</label>
-                                <InputSelect class="form-select" @bind-Value="vote.SelectedValue">
-                                    <option value="">Nie znam</option>
-                                    @for (int i = 1; i <= 10; i++)
-                                    {
-                                        <option value="@i">@i</option>
-                                    }
-                                </InputSelect>
+                            <div class="mt-4">
+                                <button class="btn btn-warning">Wygeneruj harmonogram</button>
                             </div>
                         }
 
-                        <button type="submit" class="btn btn-primary">Zagłosuj</button>
-                    </EditForm>
+                        <div class="mt-4">
+                            <h5>Harmonogram</h5>
+                            <p class="text-muted">Tu będzie wyświetlony harmonogram po wygenerowaniu.</p>
+                        </div>
+                    }
+                    else if (user is not null && user.Id != festival.OrganizerId)
+                    {
+                        @if (festival.Status == FestivalStatus.BeforeVoting)
+                        {
+                            <div class="mt-4">
+                                <h5>Głosowanie na zespoły</h5>
+                                <EditForm Model="@votes" OnValidSubmit="HandleVoteSubmit">
+                                    <DataAnnotationsValidator />
+                                    <ValidationSummary />
+
+                                    @foreach (var vote in votes)
+                                    {
+                                        <div class="mb-3">
+                                            <label class="form-label">@vote.BandName:</label>
+                                            <InputSelect class="form-select" @bind-Value="vote.SelectedValue">
+                                                <option value="">Nie znam</option>
+                                                @for (int i = 1; i <= 10; i++)
+                                                {
+                                                    <option value="@i">@i</option>
+                                                }
+                                            </InputSelect>
+                                        </div>
+                                    }
+
+                                    <button type="submit" class="btn btn-primary">Zagłosuj</button>
+                                </EditForm>
+                            </div>
+                        }
+                        else if (festival.Status == FestivalStatus.AfterVoting)
+                        {
+                            <div class="mt-4">
+                                <h5>Harmonogram</h5>
+                                <p class="text-muted">Tu będzie widoczny harmonogram koncertów.</p>
+                            </div>
+                        }
+                    }
                 </div>
             }
-            else if (festival.Status == FestivalStatus.AfterVoting)
-            {
-                <div class="mt-4">
-                    <h5>Harmonogram</h5>
-                    <p>Tu będzie widoczny harmonogram koncertów.</p>
-                </div>
-            }
-        }
+        </div>
     </div>
-}
+</div>
 
 @code {
     [Parameter]
@@ -96,7 +109,6 @@ else
     private FestivalDto? festival;
     private AuthUserDto? user;
 
-    // Model głosowania: Nazwa zespołu → ocena
     private List<VoteEntry> votes = new();
 
     protected override async Task OnInitializedAsync()
@@ -107,10 +119,10 @@ else
         if (festival?.Bands != null)
         {
             votes = festival.Bands.Select(b => new VoteEntry
-            {
-                BandName = b.Name,
-                SelectedValue = ""
-            }).ToList();
+                {
+                    BandName = b.Name,
+                    SelectedValue = ""
+                }).ToList();
         }
     }
 
@@ -127,5 +139,14 @@ else
     {
         public string BandName { get; set; } = string.Empty;
         public string SelectedValue { get; set; } = string.Empty;
+    }
+
+    public class AuthUserDto
+    {
+        public Guid Id { get; set; }
+        public string Username { get; set; }
+        public string Email { get; set; }
+        public string PasswordHash { get; set; }
+        public UserType UserType { get; set; }
     }
 }
