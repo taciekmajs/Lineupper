@@ -66,26 +66,34 @@
                         {
                             <div class="mt-4">
                                 <h5>Głosowanie na zespoły</h5>
-                                <EditForm Model="@votes" OnValidSubmit="HandleVoteSubmit">
-                                    <DataAnnotationsValidator />
-                                    <ValidationSummary />
 
-                                    @foreach (var vote in votes)
-                                    {
-                                        <div class="mb-3">
-                                            <label class="form-label">@vote.BandName:</label>
-                                            <InputSelect class="form-select" @bind-Value="vote.SelectedValue">
-                                                <option value="">Nie znam</option>
-                                                @for (int i = 1; i <= 10; i++)
-                                                {
-                                                    <option value="@i">@i</option>
-                                                }
-                                            </InputSelect>
-                                        </div>
-                                    }
+                                @if (voted)
+                                {
+                                    <div class="alert alert-success">Już oddałeś głosy. Dziękujemy za udział!</div>
+                                }
+                                else
+                                {
+                                    <EditForm Model="@votes" OnValidSubmit="HandleVoteSubmit">
+                                        <DataAnnotationsValidator />
+                                        <ValidationSummary />
 
-                                    <button type="submit" class="btn btn-primary">Zagłosuj</button>
-                                </EditForm>
+                                        @foreach (var vote in votes)
+                                        {
+                                            <div class="mb-3">
+                                                <label class="form-label">@vote.BandName:</label>
+                                                <InputSelect class="form-select" @bind-Value="vote.SelectedValue">
+                                                    <option value="">Nie znam</option>
+                                                    @for (int i = 1; i <= 10; i++)
+                                                    {
+                                                        <option value="@i">@i</option>
+                                                    }
+                                                </InputSelect>
+                                            </div>
+                                        }
+
+                                        <button type="submit" class="btn btn-primary">Zagłosuj</button>
+                                    </EditForm>
+                                }
                             </div>
                         }
                         else if (festival.Status == FestivalStatus.AfterVoting)
@@ -108,6 +116,7 @@
 
     private FestivalDto? festival;
     private AuthUserDto? user;
+    private bool voted;
 
     private List<VoteEntry> votes = new();
 
@@ -115,6 +124,13 @@
     {
         user = await LocalStorage.GetItemAsync<AuthUserDto>("user");
         festival = await Http.GetFromJsonAsync<FestivalDto>($"api/Festival/{id}");
+        var getUserVotesDto = new GetUserVotesDto()
+        {
+            userId = user.Id,
+            festivalId = festival.Id
+        };
+        var response = await Http.PostAsJsonAsync("api/Vote/GetUserVotes", getUserVotesDto);
+        voted = await response.Content.ReadFromJsonAsync<bool>();
 
         if (festival?.Bands != null)
         {
@@ -127,7 +143,7 @@
         }
     }
 
-    private async void HandleVoteSubmit()
+    private async Task HandleVoteSubmit()
     {
         var submitVotesDto = new SubmitVotesDto
         {
@@ -141,6 +157,8 @@
                 submitVotesDto.Votes.Add(vote.BandId, int.Parse(vote.SelectedValue));
         }
         var response = await Http.PostAsJsonAsync("api/vote/submitvotes", submitVotesDto);
+        voted = true;
+        StateHasChanged();
     }
 
     public class VoteEntry

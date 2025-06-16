@@ -11,6 +11,8 @@ namespace Lineupper.Domain.Models
         public Guid BandId { get; set; }
         public Band Band { get; set; } = default!;
 
+        public Guid FestivalId { get; set; }
+
         public int Value { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

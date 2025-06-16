@@ -64,9 +64,17 @@ namespace Lineupper.WebAPI.Controllers
         [HttpPost("SubmitVotes")]
         public async Task<IActionResult> SubmitVotes(SubmitVotesDto submitVotesDto)
         {
-            _logger.LogInformation($"Submit Votes {submitVotesDto}");
+            _logger.LogInformation($"SubmitVotes {submitVotesDto}");
             var succes = await _voteService.SubmitVotes(submitVotesDto);
             return Ok(succes);
+        }
+
+        [HttpPost("GetUserVotes")]
+        public async Task<IActionResult> GetUserVotes(GetUserVotesDto getUserVotesDto)
+        {
+            _logger.LogInformation($"GetUserVotes {getUserVotesDto}");
+            var userVotes = await _voteService.GetUserVotes(getUserVotesDto);
+            return Ok(userVotes);
         }
 
     }

@@ -11,5 +11,6 @@ namespace Lineupper.Domain.Contracts
     {
         Task<IEnumerable<Vote>> GetByParticipantIdAsync(Guid participantId);
         Task<bool> SubmitVotes(Guid participantId, Guid festivalId, Dictionary<Guid, int> votes);
+        Task<Vote> GetUserVotes(Guid userId, Guid festivalId);
     }
 }

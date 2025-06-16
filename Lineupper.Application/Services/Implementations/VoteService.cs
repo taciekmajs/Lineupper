@@ -70,5 +70,11 @@ namespace Lineupper.Application.Services.Implementations
             var succes = await _voteRepository.SubmitVotes(submitVotesDto.userId, submitVotesDto.festivalID, submitVotesDto.Votes);
             return succes;
         }
+
+        public async Task<bool> GetUserVotes(GetUserVotesDto userVotesDto)
+        {
+            var vote = await _voteRepository.GetUserVotes(userVotesDto.userId, userVotesDto.festivalId);
+            return vote != null;
+        }
     }
 }

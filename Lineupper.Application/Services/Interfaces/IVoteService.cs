@@ -1,4 +1,5 @@
 ﻿using Lineupper.Application.Dto;
+using Lineupper.Domain.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,5 +16,6 @@ namespace Lineupper.Application.Services.Interfaces
         Task<VoteDto?> UpdateAsync(Guid id, VoteDto voteDto);
         Task<bool> DeleteAsync(Guid id);
         Task<bool> SubmitVotes(SubmitVotesDto submitVotesDto);
+        Task<bool> GetUserVotes(GetUserVotesDto userVotesDto);
     }
 }
