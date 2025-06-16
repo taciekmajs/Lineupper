@@ -120,23 +120,32 @@
         {
             votes = festival.Bands.Select(b => new VoteEntry
                 {
+                    BandId = b.Id,
                     BandName = b.Name,
                     SelectedValue = ""
                 }).ToList();
         }
     }
 
-    private void HandleVoteSubmit()
+    private async void HandleVoteSubmit()
     {
+        var submitVotesDto = new SubmitVotesDto
+        {
+            userId = user.Id,
+            festivalID = festival.Id,
+            Votes = new Dictionary<Guid, int>()
+        };
         foreach (var vote in votes)
         {
-            Console.WriteLine($"Zespół: {vote.BandName}, Ocena: {vote.SelectedValue}");
+            if (vote.SelectedValue != "Nie znam" && vote.SelectedValue != "")
+                submitVotesDto.Votes.Add(vote.BandId, int.Parse(vote.SelectedValue));
         }
-        // TODO: Wyślij głosy do API
+        var response = await Http.PostAsJsonAsync("api/vote/submitvotes", submitVotesDto);
     }
 
     public class VoteEntry
     {
+        public Guid BandId { get; set; }
         public string BandName { get; set; } = string.Empty;
         public string SelectedValue { get; set; } = string.Empty;
     }

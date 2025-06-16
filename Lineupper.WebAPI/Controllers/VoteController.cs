@@ -60,5 +60,14 @@ namespace Lineupper.WebAPI.Controllers
             if (!success) return NotFound();
             return NoContent();
         }
+
+        [HttpPost("SubmitVotes")]
+        public async Task<IActionResult> SubmitVotes(SubmitVotesDto submitVotesDto)
+        {
+            _logger.LogInformation($"Submit Votes {submitVotesDto}");
+            var succes = await _voteService.SubmitVotes(submitVotesDto);
+            return Ok(succes);
+        }
+
     }
 }

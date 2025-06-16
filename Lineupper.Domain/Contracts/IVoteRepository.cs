@@ -10,5 +10,6 @@ namespace Lineupper.Domain.Contracts
     public interface IVoteRepository : IRepository<Vote>
     {
         Task<IEnumerable<Vote>> GetByParticipantIdAsync(Guid participantId);
+        Task<bool> SubmitVotes(Guid participantId, Guid festivalId, Dictionary<Guid, int> votes);
     }
 }

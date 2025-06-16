@@ -20,5 +20,31 @@ namespace Lineupper.Infrastructure.Repositories
                 .Include(v => v.Band)
                 .ToListAsync();
         }
+
+        public async Task<bool> SubmitVotes(Guid participantId, Guid festivalId, Dictionary<Guid, int> votes)
+        {
+            try
+            {
+                var newVotes = new List<Vote>();
+                foreach (var vote in votes)
+                {
+                    newVotes.Add(new Vote
+                    {
+                        Id = Guid.NewGuid(),
+                        ParticipantId = participantId,
+                        BandId = vote.Key,
+                        CreatedAt = DateTime.UtcNow,
+                    });
+                }
+                _context.Votes.AddRange(newVotes);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+            
+        }
     }
 }

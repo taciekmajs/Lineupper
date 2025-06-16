@@ -14,5 +14,6 @@ namespace Lineupper.Application.Services.Interfaces
         Task<VoteDto> CreateAsync(VoteDto voteDto);
         Task<VoteDto?> UpdateAsync(Guid id, VoteDto voteDto);
         Task<bool> DeleteAsync(Guid id);
+        Task<bool> SubmitVotes(SubmitVotesDto submitVotesDto);
     }
 }

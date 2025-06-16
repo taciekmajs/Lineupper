@@ -15,11 +15,13 @@ namespace Lineupper.Application.Services.Implementations
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly IVoteRepository _voteRepository;   
 
-        public VoteService(IUnitOfWork unitOfWork, IMapper mapper)
+        public VoteService(IUnitOfWork unitOfWork, IMapper mapper, IVoteRepository voteRepository)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _voteRepository = voteRepository;
         }
 
         public async Task<IEnumerable<VoteDto>> GetAllAsync()
@@ -61,6 +63,12 @@ namespace Lineupper.Application.Services.Implementations
             _unitOfWork.Votes.Remove(vote);
             await _unitOfWork.SaveChangesAsync();
             return true;
+        }
+
+        public async Task<bool> SubmitVotes(SubmitVotesDto submitVotesDto)
+        {
+            var succes = await _voteRepository.SubmitVotes(submitVotesDto.userId, submitVotesDto.festivalID, submitVotesDto.Votes);
+            return succes;
         }
     }
 }

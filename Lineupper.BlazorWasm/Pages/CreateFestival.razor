@@ -197,7 +197,7 @@
                 ConcertEndTime = TimeSpan.Parse(festivalModel.ConcertEndTime)
             };
 
-        var response = await Http.PostAsJsonAsync("api/Festival/Create", festivalDto);
+        var response = await Http.PostAsJsonAsync("api/Festival/SubmitVotes", festivalDto);
         if (response.IsSuccessStatusCode)
         {
             Navigation.NavigateTo("/myfestivals");
