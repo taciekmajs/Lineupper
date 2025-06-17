@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace Lineupper.Domain.Contracts
 {
     public interface IOrganizerRepository : IRepository<Organizer> 
-    { 
-    
+    {
+        public Task<bool> DeleteOrganzier(Guid organizerId);
     }
 }

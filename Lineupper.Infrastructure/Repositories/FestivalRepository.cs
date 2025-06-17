@@ -13,6 +13,15 @@ namespace Lineupper.Infrastructure.Repositories
     {
         public FestivalRepository(LineupperDbContext context) : base(context) { }
 
+        public Task<ICollection<ScheduleItem>> GenerateScheduleForFestival(Guid festivalId)
+        {
+            var votes = _context.Votes.Where(v => v.FestivalId == festivalId);
+
+
+
+            throw new NotImplementedException();
+        }
+
         public async Task<IEnumerable<Festival>> GetByOrganizerIdAsync(Guid organizerId)
         {
             return await _context.Festivals
@@ -27,6 +36,8 @@ namespace Lineupper.Infrastructure.Repositories
                 .Include(f => f.Schedule)
                 .FirstOrDefaultAsync(f => f.Id == id);
         }
+
+        
 
     }
 }

@@ -58,5 +58,13 @@ namespace Lineupper.WebAPI.Controllers
             await _festivalService.DeleteFestival(festivalId);
             return Ok();
         }
+
+        [HttpPost("GenerateScheduleForFestival")]
+        public async Task<IActionResult> GenerateScheduleForFestival([FromBody]Guid festivalId)
+        {
+            _logger.LogInformation($"POST GenerateScheduleForFestival {festivalId}");
+            var schedule = await _festivalService.GenerateScheduleForFestival(festivalId);
+            return Ok(schedule);
+        }
     }
 }

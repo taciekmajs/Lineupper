@@ -15,11 +15,13 @@ namespace Lineupper.Application.Services.Implementations
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly IOrganizerRepository _organizerRepository;
 
-        public OrganizerService(IUnitOfWork unitOfWork, IMapper mapper)
+        public OrganizerService(IUnitOfWork unitOfWork, IMapper mapper, IOrganizerRepository organizerRepository)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _organizerRepository = organizerRepository;
         }
 
         public async Task<IEnumerable<OrganizerDto>> GetAllAsync()
@@ -56,11 +58,9 @@ namespace Lineupper.Application.Services.Implementations
 
         public async Task<bool> DeleteAsync(Guid id)
         {
-            var organizer = await _unitOfWork.Organizers.GetByIdAsync(id);
-            if (organizer == null) return false;
+            var deleted = _organizerRepository.DeleteOrganzier(id);
 
-            _unitOfWork.Organizers.Remove(organizer);
-            await _unitOfWork.SaveChangesAsync();
+
             return true;
         }
     }

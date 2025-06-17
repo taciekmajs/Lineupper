@@ -51,7 +51,7 @@
                         @if (festival.Status == FestivalStatus.BeforeVoting)
                         {
                             <div class="mt-4">
-                                <button class="btn btn-warning">Wygeneruj harmonogram</button>
+                                <button class="btn btn-warning" @onclick="GenerateScheduleAsync">Wygeneruj harmonogram</button>
                             </div>
                         }
 
@@ -159,6 +159,23 @@
         var response = await Http.PostAsJsonAsync("api/vote/submitvotes", submitVotesDto);
         voted = true;
         StateHasChanged();
+    }
+
+    private async Task GenerateScheduleAsync()
+    {
+        if (festival == null) return;
+
+        var response = await Http.PostAsJsonAsync("api/Festival/GenerateScheduleForFestival", festival.Id);
+
+        if (response.IsSuccessStatusCode)
+        {
+            // Można tu dodać toast lub alert
+            Console.WriteLine("Harmonogram został wygenerowany.");
+        }
+        else
+        {
+            Console.WriteLine("Błąd przy generowaniu harmonogramu.");
+        }
     }
 
     public class VoteEntry

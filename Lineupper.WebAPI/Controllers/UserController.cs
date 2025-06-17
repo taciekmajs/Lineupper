@@ -60,5 +60,15 @@ namespace Lineupper.WebAPI.Controllers
             await _userService.AddAsync(user);
             return Ok();
         }
+
+        [HttpDelete("DeleteUsers")]
+        public async Task<IActionResult> DeleteUsers(List<Guid> userIds)
+        {
+            foreach (var id in userIds)
+            {
+                await _userService.DeleteAsync(id);
+            }
+            return Ok();
+        }
     }
 }

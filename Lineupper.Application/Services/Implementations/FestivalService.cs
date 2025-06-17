@@ -15,11 +15,13 @@ namespace Lineupper.Application.Services.Implementations
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly IFestivalRepository _festivalRepository;
 
-        public FestivalService(IUnitOfWork unitOfWork, IMapper mapper)
+        public FestivalService(IUnitOfWork unitOfWork, IMapper mapper, IFestivalRepository festivalRepository)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _festivalRepository = festivalRepository;
         }
 
         public async Task<IEnumerable<FestivalDto>> GetAllAsync()
@@ -84,5 +86,10 @@ namespace Lineupper.Application.Services.Implementations
             await _unitOfWork.SaveChangesAsync();
         }
 
+        public async Task<ICollection<ScheduleItem>> GenerateScheduleForFestival(Guid festivalId)
+        {
+            var schedule = await _festivalRepository.GenerateScheduleForFestival(festivalId);
+            return schedule;
+        }
     }
 }
