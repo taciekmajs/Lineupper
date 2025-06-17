@@ -14,7 +14,7 @@ namespace Lineupper.Application.Validators
                 .NotEmpty().WithMessage("Location is required");
 
             RuleFor(x => x.StartDate)
-                .LessThan(x => x.EndDate).WithMessage("StartDate must be before EndDate");
+                .LessThanOrEqualTo(x => x.EndDate).WithMessage("Data rozpoczęcia musi być wcześniejsza lub taka sama jak data zakończenia");
 
             RuleFor(x => x.ConcertStartTime)
                 .LessThan(x => x.ConcertEndTime).WithMessage("ConcertStartTime must be before ConcertEndTime");

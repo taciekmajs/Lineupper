@@ -1,4 +1,6 @@
 ﻿@page "/"
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+
 <PageTitle>Lineupper</PageTitle>
 
 <style>
@@ -29,17 +31,44 @@
             Dołącz do Lineupper i pomóż stworzyć najlepszy line-up!
         </p>
 
-        <div class="d-flex flex-column align-items-center mt-5 gap-3">
-            <a class="btn btn-primary btn-lg px-5" href="/login">
-                <i class="bi bi-box-arrow-in-right me-2"></i>Zaloguj się
-            </a>
-
-            <div class="mt-2">
-                <p class="mb-2">Nie masz konta?</p>
-                <a class="btn btn-outline-secondary btn-lg px-5" href="/register">
-                    <i class="bi bi-person-plus me-2"></i>Załóż konto
+        @if (user == null)
+        {
+            <div class="d-flex flex-column align-items-center mt-5 gap-3">
+                <a class="btn btn-primary btn-lg px-5" href="/login">
+                    <i class="bi bi-box-arrow-in-right me-2"></i>Zaloguj się
                 </a>
+
+                <div class="mt-2">
+                    <p class="mb-2">Nie masz konta?</p>
+                    <a class="btn btn-outline-secondary btn-lg px-5" href="/register">
+                        <i class="bi bi-person-plus me-2"></i>Załóż konto
+                    </a>
+                </div>
             </div>
-        </div>
+        }
     </div>
 </div>
+
+@code {
+    private AuthUserDto? user;
+
+    protected override async Task OnInitializedAsync()
+    {
+        user = await LocalStorage.GetItemAsync<AuthUserDto>("user");
+    }
+
+    public class AuthUserDto
+    {
+        public Guid Id { get; set; }
+        public string Username { get; set; }
+        public string Email { get; set; }
+        public string PasswordHash { get; set; }
+        public UserType UserType { get; set; }
+    }
+
+    public enum UserType
+    {
+        Participant = 0,
+        Organizer = 1
+    }
+}
