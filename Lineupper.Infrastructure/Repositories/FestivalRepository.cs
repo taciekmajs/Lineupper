@@ -39,10 +39,38 @@ namespace Lineupper.Infrastructure.Repositories
             );
 
 
+
             var availableSlots = TimeExtensions.GenerateAvailableSlots(festival);
             var result = LineupGenerator.GenerateLineup(votesAsDict, setDurations, availableSlots);
 
-            throw new NotImplementedException();
+            _context.ScheduleItems.RemoveRange(
+                _context.ScheduleItems.Where(s => s.FestivalId == festivalId)
+            );
+
+            List<ScheduleItem> concerts = new List<ScheduleItem>();
+            foreach (var concert in result)
+            {
+                concerts.Add(new ScheduleItem
+                {
+                    Id = Guid.NewGuid(),
+                    FestivalId = festival.Id,
+                    BandId = concert.BandId,
+                    StageNumber = concert.Stage,
+                    BandName = bandNames[concert.BandId],
+                    StartTime = festival.StartDate.AddMinutes(concert.StartMinute),
+                    EndTime = festival.EndDate.AddMinutes(concert.EndMinute)
+                });
+            }
+
+            if (concerts.Count() != 0)
+            {
+                await _context.ScheduleItems.AddRangeAsync(concerts);
+                festival.Schedule = concerts;
+                festival.Status = SharedKernel.Enums.FestivalStatus.ScheduleReady;
+                await _context.SaveChangesAsync();
+            }
+
+            return concerts;
         }
 
         public async Task<IEnumerable<Festival>> GetByOrganizerIdAsync(Guid organizerId)
@@ -52,6 +80,11 @@ namespace Lineupper.Infrastructure.Repositories
                 .ToListAsync();
         }
 
+        public async Task<ICollection<ScheduleItem>> GetScheduleItems(Guid festivalId)
+        {
+            return _context.ScheduleItems.Where(s => s.FestivalId == festivalId).ToList();
+        }
+
         public async Task<Festival?> GetWithBandsAndScheduleAsync(Guid id)
         {
             return await _context.Festivals
@@ -59,8 +92,5 @@ namespace Lineupper.Infrastructure.Repositories
                 .Include(f => f.Schedule)
                 .FirstOrDefaultAsync(f => f.Id == id);
         }
-
-        
-
     }
 }

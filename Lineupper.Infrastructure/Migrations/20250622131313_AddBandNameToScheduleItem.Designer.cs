@@ -3,6 +3,7 @@ using System;
 using Lineupper.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Lineupper.Infrastructure.Migrations
 {
     [DbContext(typeof(LineupperDbContext))]
-    partial class LineupperDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250622131313_AddBandNameToScheduleItem")]
+    partial class AddBandNameToScheduleItem
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.4");
@@ -101,9 +104,6 @@ namespace Lineupper.Infrastructure.Migrations
 
                     b.Property<Guid>("FestivalId")
                         .HasColumnType("TEXT");
-
-                    b.Property<int>("StageNumber")
-                        .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("StartTime")
                         .HasColumnType("TEXT");

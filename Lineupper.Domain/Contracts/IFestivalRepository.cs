@@ -12,5 +12,6 @@ namespace Lineupper.Domain.Contracts
         Task<IEnumerable<Festival>> GetByOrganizerIdAsync(Guid organizerId);
         Task<Festival?> GetWithBandsAndScheduleAsync(Guid id);
         Task<ICollection<ScheduleItem>> GenerateScheduleForFestival(Guid festivalId);
+        Task<ICollection<ScheduleItem>> GetScheduleItems(Guid festivalId);
     }
 }

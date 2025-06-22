@@ -35,6 +35,14 @@ namespace Lineupper.WebAPI.Controllers
             return Ok(festival);
         }
 
+        [HttpGet("GetScheduleById")]
+        public async Task<IActionResult> GetScheduleById(Guid festivalId)
+        {
+            _logger.LogInformation($"GET festival schedule by id: {festivalId}");
+            var schedule = await _festivalService.GetScheduleItems(festivalId);
+            return Ok(schedule);
+        }
+
         [HttpGet("GetFestivalsByOrganizer")]
         public async Task<IActionResult> GetFestivalsByOrganizer(Guid organizerId)
         {

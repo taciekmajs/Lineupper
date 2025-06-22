@@ -91,5 +91,11 @@ namespace Lineupper.Application.Services.Implementations
             var schedule = await _festivalRepository.GenerateScheduleForFestival(festivalId);
             return schedule;
         }
+
+        public async Task<ICollection<ScheduleItem>> GetScheduleItems(Guid festivalId)
+        {
+            var schedule = await _festivalRepository.GetScheduleItems(festivalId);
+            return schedule;
+        }
     }
 }

@@ -1,8 +1,10 @@
 ﻿@page "/festivaldetails/{id:guid}"
 @using Lineupper.Application.Dto
+@using Lineupper.Domain.Models
 @using Lineupper.SharedKernel.Enums
 @inject HttpClient Http
 @inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+@using System.Globalization
 
 <PageTitle>Szczegóły festiwalu</PageTitle>
 
@@ -55,10 +57,9 @@
                             </div>
                         }
 
-                        <div class="mt-4">
-                            <h5>Harmonogram</h5>
-                            <p class="text-muted">Tu będzie wyświetlony harmonogram po wygenerowaniu.</p>
-                        </div>
+                        
+
+                        
                     }
                     else if (user is not null && user.Id != festival.OrganizerId)
                     {
@@ -96,13 +97,56 @@
                                 }
                             </div>
                         }
-                        else if (festival.Status == FestivalStatus.AfterVoting)
-                        {
-                            <div class="mt-4">
-                                <h5>Harmonogram</h5>
-                                <p class="text-muted">Tu będzie widoczny harmonogram koncertów.</p>
-                            </div>
-                        }
+                        
+                    }
+
+                    @if (festival.Status == FestivalStatus.BeforeVoting)
+                    {
+                        <div class="mt-4">
+                            <h5>Harmonogram</h5>
+                            <p class="text-muted">Tu będzie wyświetlony harmonogram po wygenerowaniu.</p>
+                        </div>
+                    }
+                    @if (festival.Status == FestivalStatus.ScheduleReady && festival.Schedule is not null && festival.Schedule.Any())
+                    {
+                        <div class="mt-4">
+                            <h5>Harmonogram koncertów</h5>
+                            <table class="table table-bordered text-center align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Godzina</th>
+                                        @for (int stage = 0; stage <= maxStage; stage++)
+                                        {
+                                            <th>Scena @stage</th>
+                                        }
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var time in timeSlots)
+                                    {
+                                        <tr>
+                                            <td>@time.ToString("HH:mm")</td>
+                                            @for (int stage = 0; stage <= maxStage; stage++)
+                                            {
+                                                var item = festival.Schedule.FirstOrDefault(s =>
+                                                s.StageNumber == stage &&
+                                                s.StartTime <= time && s.EndTime > time);
+
+                                                <td>
+                                                    @if (item is not null)
+                                                    {
+                                                        <div style="font-weight:bold">@item.BandName</div>
+                                                        <div style="font-size:smaller">
+                                                            @item.StartTime.ToString("HH:mm")–@item.EndTime.ToString("HH:mm")
+                                                        </div>
+                                                    }
+                                                </td>
+                                            }
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
                     }
                 </div>
             }
@@ -132,6 +176,14 @@
         var response = await Http.PostAsJsonAsync("api/Vote/GetUserVotes", getUserVotesDto);
         voted = await response.Content.ReadFromJsonAsync<bool>();
 
+        if (festival.Status == FestivalStatus.ScheduleReady)
+        {
+            var schedule =  await Http.GetFromJsonAsync<ICollection<ScheduleItem>>($"api/Festival/GetScheduleById?festivalId={festival.Id}");
+            festival.Schedule = schedule;
+
+        }
+
+
         if (festival?.Bands != null)
         {
             votes = festival.Bands.Select(b => new VoteEntry
@@ -141,6 +193,7 @@
                     SelectedValue = ""
                 }).ToList();
         }
+        PrepareScheduleLayout();
     }
 
     private async Task HandleVoteSubmit()
@@ -176,6 +229,27 @@
         {
             Console.WriteLine("Błąd przy generowaniu harmonogramu.");
         }
+    }
+
+    private List<DateTime> timeSlots = new();
+    private int maxStage = 0;
+
+    private void PrepareScheduleLayout()
+    {
+        if (festival?.Schedule == null || !festival.Schedule.Any())
+            return;
+
+        var start = festival.Schedule.Min(s => s.StartTime).Date.AddHours(12); // np. od 12:00
+        var end = festival.Schedule.Max(s => s.EndTime).AddMinutes(30); // trochę zapasu
+
+        timeSlots = new List<DateTime>();
+        while (start <= end)
+        {
+            timeSlots.Add(start);
+            start = start.AddMinutes(30); // sloty co 30 minut
+        }
+
+        maxStage = festival.Schedule.Max(s => s.StageNumber);
     }
 
     public class VoteEntry
