@@ -1,0 +1,122 @@
+﻿@using MudBlazor
+@using Lineupper.Domain.Models
+@using System.Globalization
+
+<MudGrid GutterSize="0" Class="m-0 p-0">
+    <MudItem xs="12">
+        <MudText Typo="Typo.h3">Harmonogram koncertów</MudText>
+    </MudItem>
+
+    @foreach (var row in Grid)
+    {
+        <MudItem xs="12" Class="m-0 p-0">
+            <MudGrid GutterSize="0" Class="m-0 p-0 align-items-stretch">
+                <MudItem xs="1" Class="m-0 p-1 d-flex align-items-center justify-content-center" Style="height: 5px;">
+                    @if (row.ShowTimeLabel)
+                    {
+                        <MudText Typo="Typo.body2">@row.TimeLabel</MudText>
+                    }
+                </MudItem>
+
+                @foreach (var slot in row.Slots)
+                {
+                    var heightPx = Math.Max(slot.SlotCount * 5, 1);
+
+                    <MudItem xs="@StageWidth" Class="m-0 p-0">
+                        @if (slot.Band != null)
+                        {
+                            <MudPaper style="height:{heightPx}px; background-color: #33ccff; border: 1px solid #1976d2;  position: relative; "
+                                      Class="pa-1 d-flex align-items-end">
+                                @if (!RenderedBands.Contains(slot.Band.BandId))
+                                {
+                                    RenderedBands.Add(slot.Band.BandId);
+                                    <div>
+                                        @slot.Band.BandName @slot.Band.StartTime.ToString("HH:mm") – @slot.Band.EndTime.ToString("HH:mm")
+                                    </div>
+                                }
+                            </MudPaper>
+                        }
+                        else
+                        {
+                            <div style="height:{heightPx}px;"></div>
+                        }
+                    </MudItem>
+                }
+            </MudGrid>
+        </MudItem>
+    }
+</MudGrid>
+
+@code {
+    [Parameter] public ICollection<ScheduleItem> Schedule { get; set; }
+    [Parameter] public int StartHour { get; set; }
+    [Parameter] public int EndHour { get; set; }
+    [Parameter] public DateTime StartDate { get; set; }
+    [Parameter] public DateTime EndDate { get; set; }
+
+    private int MaxStage => Schedule.Any() ? Schedule.Max(s => s.StageNumber) : 0;
+    private int StageWidth => 11 / (MaxStage + 1);
+    private HashSet<Guid> RenderedBands = new();
+    private List<ScheduleRow> Grid = new();
+
+    protected override void OnParametersSet()
+    {
+        RenderedBands.Clear();
+        Grid.Clear();
+
+        var time = StartDate.Date.AddHours(StartHour);
+        var end = EndDate.Date.AddHours(EndHour);
+
+        var scheduleCopy = Schedule.ToList();
+
+        while (time < end)
+        {
+            var row = new ScheduleRow
+            {
+                TimeLabel = time.Minute == 0 ? time.ToString("HH:mm") : null,
+                ShowTimeLabel = time.Minute == 0
+            };
+
+            for (int stage = 0; stage <= MaxStage; stage++)
+            {
+                var item = scheduleCopy.FirstOrDefault(s =>
+                    s.StageNumber == stage &&
+                    s.StartTime <= time &&
+                    s.EndTime > time);
+
+                if (item != null && !row.Slots.Any(s => s.Band == item))
+                {
+                    var duration = (int)Math.Ceiling((item.EndTime - item.StartTime).TotalMinutes / 5);
+                    row.Slots.Add(new RenderSlot { Band = item, SlotCount = duration });
+                    scheduleCopy.Remove(item);
+                }
+                else
+                {
+                    row.Slots.Add(new RenderSlot { Band = null, SlotCount = 1 });
+                }
+            }
+
+            Grid.Add(row);
+            time = time.AddMinutes(5);
+        }
+    }
+
+    class ScheduleRow
+    {
+        public string? TimeLabel { get; set; }
+        public bool ShowTimeLabel { get; set; }
+        public List<RenderSlot> Slots { get; set; } = new();
+    }
+
+    class RenderSlot
+    {
+        private int _slotCount = 1;
+        public ScheduleItem? Band { get; set; }
+
+        public int SlotCount
+        {
+            get => _slotCount;
+            set => _slotCount = value < 1 ? 1 : value;
+        }
+    }
+}

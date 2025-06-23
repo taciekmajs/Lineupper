@@ -1,5 +1,6 @@
 ﻿@page "/festivaldetails/{id:guid}"
 @using Lineupper.Application.Dto
+@using Lineupper.BlazorWasm.Components
 @using Lineupper.Domain.Models
 @using Lineupper.SharedKernel.Enums
 @inject HttpClient Http
@@ -109,44 +110,12 @@
                     }
                     @if (festival.Status == FestivalStatus.ScheduleReady && festival.Schedule is not null && festival.Schedule.Any())
                     {
-                        <div class="mt-4">
-                            <h5>Harmonogram koncertów</h5>
-                            <table class="table table-bordered text-center align-middle">
-                                <thead>
-                                    <tr>
-                                        <th>Godzina</th>
-                                        @for (int stage = 0; stage <= maxStage; stage++)
-                                        {
-                                            <th>Scena @stage</th>
-                                        }
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var time in timeSlots)
-                                    {
-                                        <tr>
-                                            <td>@time.ToString("HH:mm")</td>
-                                            @for (int stage = 0; stage <= maxStage; stage++)
-                                            {
-                                                var item = festival.Schedule.FirstOrDefault(s =>
-                                                s.StageNumber == stage &&
-                                                s.StartTime <= time && s.EndTime > time);
-
-                                                <td>
-                                                    @if (item is not null)
-                                                    {
-                                                        <div style="font-weight:bold">@item.BandName</div>
-                                                        <div style="font-size:smaller">
-                                                            @item.StartTime.ToString("HH:mm")–@item.EndTime.ToString("HH:mm")
-                                                        </div>
-                                                    }
-                                                </td>
-                                            }
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
+                        <FestivalGrid Schedule="festival.Schedule"
+                          StartHour="festival.ConcertStartTime.Hours"
+                          EndHour="festival.ConcertEndTime.Hours" 
+                          StartDate="festival.StartDate"
+                          EndDate="festival.EndDate"
+                          />
                     }
                 </div>
             }
@@ -180,8 +149,8 @@
         {
             var schedule =  await Http.GetFromJsonAsync<ICollection<ScheduleItem>>($"api/Festival/GetScheduleById?festivalId={festival.Id}");
             festival.Schedule = schedule;
-
         }
+
 
 
         if (festival?.Bands != null)
@@ -222,7 +191,6 @@
 
         if (response.IsSuccessStatusCode)
         {
-            // Można tu dodać toast lub alert
             Console.WriteLine("Harmonogram został wygenerowany.");
         }
         else
