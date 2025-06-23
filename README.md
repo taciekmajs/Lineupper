@@ -30,7 +30,3 @@ Celem projektu było stworzenie aplikacji internetowej pozwalającej na generowa
 1. Otwórz plik `Lineupper.sln` w Visual Studio 2022 lub nowszym.
 2. Przywróć zależności NuGet.
 3. Uruchom `Lineupper.WebAPI` i `Lineupper.BlazorWASM`.
-4. Domyślni użytkownicy:
-   - Organizer: `organizer@lineupper.com` / hasło: `Organizer123!`
-   - Participant: `participant@lineupper.com` / hasło: `Participant123!`
-   *(jeśli nie ma – należy dodać użytkowników ręcznie w bazie lub dodać seed danych)*
