@@ -58,7 +58,15 @@ namespace Lineupper.WebAPI.Controllers
             _logger.LogInformation($"Creating user: {user.Email}");
             user.Id = Guid.NewGuid();
             await _userService.AddAsync(user);
-            return Ok();
+            var retUser = new AuthUserDto()
+            {
+                Id = user.Id,
+                Username = user.Username,
+                Email = user.Email,
+                PasswordHash = user.Password,
+                UserType = user.UserType
+            };
+            return Ok(retUser);
         }
 
         [HttpDelete("DeleteUsers")]

@@ -27,7 +27,7 @@
             {
                 <div class="card shadow-sm p-4">
                     <h3 class="text-primary mb-3">@festival.Name</h3>
-                    <p><strong>Data:</strong> @festival.StartDate:dd.MM.yyyy – @festival.EndDate:dd.MM.yyyy</p>
+                    <p><strong>Data:</strong> @festival.StartDate.ToString("dd-MM-yyyy") – @festival.EndDate.ToString("dd-MM-yyyy")</p>
                     <p><strong>Godziny koncertów:</strong> @festival.ConcertStartTime - @festival.ConcertEndTime</p>
                     <p><strong>Lokalizacja:</strong> @festival.Location</p>
                     <p><strong>Status:</strong> @festival.Status</p>
