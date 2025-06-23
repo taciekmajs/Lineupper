@@ -15,6 +15,6 @@ namespace Lineupper.Application.Dto
         public List<BandDto> Bands { get; set; }
         public TimeSpan ConcertStartTime { get; set; }
         public TimeSpan ConcertEndTime { get; set; }
-        public ICollection<ScheduleItem> Schedule { get; set; }
+        public ICollection<ScheduleItem>? Schedule { get; set; }
     }
 }
